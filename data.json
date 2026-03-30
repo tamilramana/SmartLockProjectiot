@@ -58,9 +58,43 @@
       "api_key": "sample-api-key-3",
       "status": "offline",
       "owner_id": "admin-1"
+    },
+    {
+      "id": "85295e5a-e531-4f2e-bdf6-fee96f42aec4",
+      "device_id": "esp-test-123",
+      "deviceId": "esp-test-123",
+      "name": "Test ESP",
+      "location": "",
+      "ip_address": "192.168.1.51",
+      "api_key": "82f357c8a024ca2930494a15bab3d45e8a3e83f1046c4c224a37c2825a592ebc",
+      "status": "online",
+      "last_heartbeat": "2026-03-30T14:41:54.146Z",
+      "owner_id": null
     }
   ],
   "logs": [
+    {
+      "id": "dae99e1c-93ff-4517-bc3b-50fcb1f94e02",
+      "timestamp": "2026-03-30T14:41:54.153Z",
+      "userId": null,
+      "user": null,
+      "action": "device:unlock",
+      "deviceId": "85295e5a-e531-4f2e-bdf6-fee96f42aec4",
+      "details": "Device reported unlock: success",
+      "severity": "info",
+      "log_hmac": "7110dbd3fe4e155a93409729a975ffffa420ee1c54066ec1cd35f94fdae69b84"
+    },
+    {
+      "id": "ba9c13e0-fb95-4c56-9ea4-153e2a1b6176",
+      "timestamp": "2026-03-30T14:41:54.136Z",
+      "userId": null,
+      "user": null,
+      "action": "device:register",
+      "deviceId": "85295e5a-e531-4f2e-bdf6-fee96f42aec4",
+      "details": "New device \"Test ESP\" registered from 192.168.1.50",
+      "severity": "info",
+      "log_hmac": "284a387dcdf53088f0c752cdd88fb84f33aa3d642324c1356ae78e2e04d44107"
+    },
     {
       "id": "log-1",
       "timestamp": "2026-03-29T12:00:00.000Z",
@@ -75,6 +109,18 @@
   ],
   "notifications": [
     {
+      "id": "3784eaef-3799-4c67-89ad-3c7d14aaacbc",
+      "timestamp": "2026-03-30T14:41:54.137Z",
+      "level": "info",
+      "message": "New device \"Test ESP\" registered. Assign it to a user in the dashboard."
+    },
+    {
+      "id": "06a80aa1-c917-4ac8-bb1e-4254045bc043",
+      "timestamp": "2026-03-30T14:41:54.120Z",
+      "level": "warning",
+      "message": "Account \"testbrute\" temporarily locked after 5 failed login attempts."
+    },
+    {
       "id": "note-1",
       "timestamp": "2026-03-29T12:00:00.000Z",
       "level": "info",
@@ -87,5 +133,14 @@
       "message": "Garage Door is currently unlocked."
     }
   ],
-  "schedules": []
+  "schedules": [
+    {
+      "id": "cc6b0a81-f629-44c5-aed6-400377acd854",
+      "deviceId": "device-1",
+      "action": "lock",
+      "time": "2026-03-30T15:41:50.147Z",
+      "created_by": "admin-1",
+      "created_at": "2026-03-30T14:41:50.147Z"
+    }
+  ]
 }
