@@ -1,0 +1,100 @@
+{
+  "users": [
+    {
+      "id": "admin-1",
+      "username": "admin",
+      "password_hash": "$2a$10$OPLO7LgyhhW8r7BtNIBV.OuczdNraUZnUkk4fHcfr/Chpbt.eJjlW",
+      "role": "admin",
+      "mfa_enabled": false,
+      "mfa_secret": null,
+      "mfa_secret_pending": null,
+      "backup_codes": [],
+      "trusted_devices": [],
+      "created_at": "2026-03-29T12:00:00.000Z"
+    },
+    {
+      "id": "user-1",
+      "username": "user",
+      "password_hash": "$2a$10$OPLO7LgyhhW8r7BtNIBV.OuczdNraUZnUkk4fHcfr/Chpbt.eJjlW",
+      "role": "user",
+      "mfa_enabled": false,
+      "mfa_secret": null,
+      "mfa_secret_pending": null,
+      "backup_codes": [],
+      "trusted_devices": [],
+      "created_at": "2026-03-29T12:00:00.000Z"
+    }
+  ],
+  "devices": [
+    {
+      "id": "device-1",
+      "device_id": "front-door",
+      "deviceId": "front-door",
+      "name": "Front Door Lock",
+      "location": "Main Entrance",
+      "ip_address": "192.168.1.101",
+      "api_key": "sample-api-key-1",
+      "status": "locked",
+      "owner_id": "admin-1"
+    },
+    {
+      "id": "device-2",
+      "device_id": "garage",
+      "deviceId": "garage",
+      "name": "Garage Door",
+      "location": "Garage",
+      "ip_address": "192.168.1.102",
+      "api_key": "sample-api-key-2",
+      "status": "unlocked",
+      "owner_id": "admin-1"
+    },
+    {
+      "id": "device-3",
+      "device_id": "backyard",
+      "deviceId": "backyard",
+      "name": "Backyard Gate",
+      "location": "Backyard",
+      "ip_address": "192.168.1.103",
+      "api_key": "sample-api-key-3",
+      "status": "offline",
+      "owner_id": "admin-1"
+    }
+  ],
+  "logs": [
+    {
+      "id": "log-1",
+      "timestamp": "2026-03-29T12:00:00.000Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "system:init",
+      "deviceId": null,
+      "details": "Sample data initialized",
+      "severity": "info",
+      "log_hmac": "sample-hmac"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "note-1",
+      "timestamp": "2026-03-29T12:00:00.000Z",
+      "level": "info",
+      "message": "SmartLock dashboard is ready with sample data."
+    },
+    {
+      "id": "note-2",
+      "timestamp": "2026-03-29T12:00:00.000Z",
+      "level": "warning",
+      "message": "Garage Door is currently unlocked."
+    }
+  ],
+  "schedules": [
+    {
+      "id": "schedule-1",
+      "deviceId": "device-1",
+      "action": "lock",
+      "time": "2026-03-30T08:00:00.000Z",
+      "created_by": "admin-1",
+      "created_at": "2026-03-29T12:00:00.000Z"
+    }
+  ]
+}
