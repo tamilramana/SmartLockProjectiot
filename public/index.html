@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartLock — Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
+    nav {
+      background: #0f3460; color: #fff; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 56px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    nav .brand { font-size: 1.3rem; font-weight: 700; text-decoration: none; color: #fff; }
+    nav .links a {
+      color: #ccd; text-decoration: none; margin-left: 20px;
+      font-size: 0.9rem; transition: color 0.2s;
+    }
+    nav .links a:hover, nav .links a.active { color: #fff; }
+    nav .user { font-size: 0.85rem; color: #aac; margin-left: 20px; }
+    nav .logout { background: #e74c3c; border: none; color: #fff; padding: 6px 14px;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-left: 12px; }
+    nav .logout:hover { background: #c0392b; }
+    .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+    h2 { margin-bottom: 20px; color: #0f3460; }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px; margin-bottom: 30px;
+    }
+    .stat-card {
+      background: #fff; border-radius: 12px; padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); text-align: center;
+    }
+    .stat-card .icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #0f3460; }
+    .stat-card .label { font-size: 0.85rem; color: #888; margin-top: 4px; }
+    .section { background: #fff; border-radius: 12px; padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 24px; }
+    .section h3 { margin-bottom: 16px; color: #333; font-size: 1.1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    th { background: #f8f9fa; color: #555; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 12px;
+      font-size: 0.78rem; font-weight: 600;
+    }
+    .badge-locked { background: #fdecea; color: #e74c3c; }
+    .badge-unlocked { background: #e8f5e9; color: #27ae60; }
+    .badge-offline { background: #f5f5f5; color: #999; }
+    .badge-online { background: #e3f2fd; color: #1976d2; }
+    .badge-info { background: #e3f2fd; color: #1976d2; }
+    .badge-warning { background: #fff8e1; color: #f57c00; }
+    .badge-critical { background: #fdecea; color: #e74c3c; }
+    .action-row { display: flex; gap: 12px; margin-bottom: 20px; }
+    .btn {
+      padding: 9px 18px; border: none; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .btn-primary { background: #0f3460; color: #fff; }
+    .btn-primary:hover { background: #16213e; }
+    .btn-danger { background: #e74c3c; color: #fff; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-success { background: #27ae60; color: #fff; }
+    .btn-success:hover { background: #219a52; }
+    .loading { text-align: center; padding: 30px; color: #999; }
+    .empty { text-align: center; padding: 20px; color: #bbb; font-style: italic; }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/index.html">🔒 SmartLock</a>
+  <div class="links">
+    <a href="/index.html" class="active">Dashboard</a>
+    <a href="/devices.html">Devices</a>
+    <a href="/notifications.html">Notifications</a>
+    <a href="/logs.html">Logs</a>
+    <a href="/schedules.html">Schedules</a>
+    <a href="/users.html" id="usersLink" style="display:none">Users</a>
+  </div>
+  <div style="display:flex;align-items:center">
+    <span class="user" id="userDisplay"></span>
+    <button class="logout" id="logoutBtn">Logout</button>
+  </div>
+</nav>
+<div class="container">
+  <h2>Dashboard</h2>
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="icon">🔒</div><div class="value" id="statLocked">—</div><div class="label">Locked</div></div>
+    <div class="stat-card"><div class="icon">🔓</div><div class="value" id="statUnlocked">—</div><div class="label">Unlocked</div></div>
+    <div class="stat-card"><div class="icon">📡</div><div class="value" id="statOffline">—</div><div class="label">Offline</div></div>
+    <div class="stat-card"><div class="icon">🔔</div><div class="value" id="statNotifs">—</div><div class="label">Notifications</div></div>
+  </div>
+
+  <div class="action-row">
+    <button class="btn btn-danger" id="lockAllBtn">🔒 Lock All</button>
+    <button class="btn btn-success" id="unlockAllBtn">🔓 Unlock All</button>
+  </div>
+
+  <div class="section">
+    <h3>Recent Devices</h3>
+    <div id="devicesList" class="loading">Loading…</div>
+  </div>
+
+  <div class="section">
+    <h3>Recent Notifications</h3>
+    <div id="notifsList" class="loading">Loading…</div>
+  </div>
+</div>
+<script>
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+  const username = localStorage.getItem('username');
+  if (!token) { window.location.href = '/login.html'; }
+
+  document.getElementById('userDisplay').textContent = username ? `👤 ${username}` : '';
+  if (role === 'admin') document.getElementById('usersLink').style.display = 'inline';
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = '/login.html';
+  }
+
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+  }
+
+  function statusBadge(s) {
+    const cls = s === 'locked' ? 'badge-locked' : s === 'unlocked' ? 'badge-unlocked' : 'badge-offline';
+    return `<span class="badge ${cls}">${s ? s.toUpperCase() : 'UNKNOWN'}</span>`;
+  }
+
+  async function loadDashboard() {
+    try {
+      const [devRes, notifRes] = await Promise.all([
+        fetch('/api/devices', { headers: authHeaders() }),
+        fetch('/notifications', { headers: authHeaders() })
+      ]);
+      if (devRes.status === 401 || notifRes.status === 401) { logout(); return; }
+      const devices = await devRes.json();
+      const notifs = await notifRes.json();
+
+      document.getElementById('statLocked').textContent = devices.filter(d => d.status === 'locked').length;
+      document.getElementById('statUnlocked').textContent = devices.filter(d => d.status === 'unlocked').length;
+      document.getElementById('statOffline').textContent = devices.filter(d => d.status === 'offline').length;
+      document.getElementById('statNotifs').textContent = notifs.length;
+
+      if (devices.length === 0) {
+        document.getElementById('devicesList').innerHTML = '<div class="empty">No devices found.</div>';
+      } else {
+        let rows = '<table><thead><tr><th>Name</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+        devices.slice(0, 5).forEach(d => {
+          const devId = d.id.replace(/[^a-zA-Z0-9-_]/g, '');
+          rows += `<tr>
+            <td><strong>${escText(d.name)}</strong></td>
+            <td>${escText(d.location || '—')}</td>
+            <td>${statusBadge(d.status)}</td>
+            <td>
+              <button class="btn btn-danger" style="padding:4px 10px;font-size:0.8rem" data-action="lock" data-id="${devId}">Lock</button>
+              <button class="btn btn-success" style="padding:4px 10px;font-size:0.8rem;margin-left:6px" data-action="unlock" data-id="${devId}">Unlock</button>
+            </td>
+          </tr>`;
+        });
+        rows += '</tbody></table>';
+        document.getElementById('devicesList').innerHTML = rows;
+      }
+
+      if (notifs.length === 0) {
+        document.getElementById('notifsList').innerHTML = '<div class="empty">No notifications.</div>';
+      } else {
+        let rows = '<table><thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead><tbody>';
+        notifs.slice(0, 5).forEach(n => {
+          const cls = n.level === 'warning' ? 'badge-warning' : n.level === 'critical' ? 'badge-critical' : 'badge-info';
+          rows += `<tr>
+            <td>${new Date(n.timestamp).toLocaleString()}</td>
+            <td><span class="badge ${cls}">${escText(n.level.toUpperCase())}</span></td>
+            <td>${escText(n.message)}</td>
+          </tr>`;
+        });
+        rows += '</tbody></table>';
+        document.getElementById('notifsList').innerHTML = rows;
+      }
+    } catch (e) {
+      document.getElementById('devicesList').innerHTML = '<div class="empty">Failed to load devices.</div>';
+    }
+  }
+
+  async function quickLock(id) {
+    await fetch(`/devices/${id}/lock`, { method: 'POST', headers: authHeaders() });
+    loadDashboard();
+  }
+
+  async function quickUnlock(id) {
+    await fetch(`/devices/${id}/unlock`, { method: 'POST', headers: authHeaders() });
+    loadDashboard();
+  }
+
+  async function bulkLock() {
+    await fetch('/lock', { method: 'POST', headers: authHeaders() });
+    loadDashboard();
+  }
+
+  async function bulkUnlock() {
+    await fetch('/unlock', { method: 'POST', headers: authHeaders() });
+    loadDashboard();
+  }
+
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('lockAllBtn').addEventListener('click', bulkLock);
+  document.getElementById('unlockAllBtn').addEventListener('click', bulkUnlock);
+
+  document.getElementById('devicesList').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action][data-id]');
+    if (!btn) return;
+    const { action, id } = btn.dataset;
+    if (action === 'lock') quickLock(id);
+    else if (action === 'unlock') quickUnlock(id);
+  });
+
+  loadDashboard();
+</script>
+</body>
+</html>

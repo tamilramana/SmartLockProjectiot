@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartLock — Activity Logs</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
+    nav {
+      background: #0f3460; color: #fff; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 56px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    nav .brand { font-size: 1.3rem; font-weight: 700; text-decoration: none; color: #fff; }
+    nav .links a { color: #ccd; text-decoration: none; margin-left: 20px; font-size: 0.9rem; }
+    nav .links a:hover, nav .links a.active { color: #fff; }
+    nav .user { font-size: 0.85rem; color: #aac; margin-left: 20px; }
+    nav .logout { background: #e74c3c; border: none; color: #fff; padding: 6px 14px;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-left: 12px; }
+    nav .logout:hover { background: #c0392b; }
+    .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+    h2 { margin-bottom: 20px; color: #0f3460; }
+    .section { background: #fff; border-radius: 12px; padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .action-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-primary { background: #555; color: #fff; }
+    .btn-primary:hover { background: #333; }
+    input { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.9rem; }
+    input:focus { outline: none; border-color: #0f3460; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.88rem; }
+    th { background: #f8f9fa; color: #555; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 12px; font-size: 0.76rem; font-weight: 600; }
+    .badge-info { background: #e3f2fd; color: #1976d2; }
+    .badge-warning { background: #fff8e1; color: #f57c00; }
+    .badge-critical { background: #fdecea; color: #e74c3c; }
+    .badge-error { background: #fdecea; color: #e74c3c; }
+    .loading { text-align: center; padding: 30px; color: #999; }
+    .empty { text-align: center; padding: 20px; color: #bbb; font-style: italic; }
+    .action-text { font-family: monospace; font-size: 0.82rem; color: #555; }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/index.html">🔒 SmartLock</a>
+  <div class="links">
+    <a href="/index.html">Dashboard</a>
+    <a href="/devices.html">Devices</a>
+    <a href="/notifications.html">Notifications</a>
+    <a href="/logs.html" class="active">Logs</a>
+    <a href="/schedules.html">Schedules</a>
+    <a href="/users.html" id="usersLink" style="display:none">Users</a>
+  </div>
+  <div style="display:flex;align-items:center">
+    <span class="user" id="userDisplay"></span>
+    <button class="logout" id="logoutBtn">Logout</button>
+  </div>
+</nav>
+<div class="container">
+  <h2>Activity Logs</h2>
+  <div class="action-row">
+    <input type="text" id="filterInput" placeholder="Filter by action or user…" style="width:260px" />
+    <button class="btn btn-primary" id="refreshBtn">↺ Refresh</button>
+  </div>
+  <div class="section">
+    <div id="logsList" class="loading">Loading…</div>
+  </div>
+</div>
+<script>
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+  const username = localStorage.getItem('username');
+  if (!token) { window.location.href = '/login.html'; }
+
+  document.getElementById('userDisplay').textContent = username ? `👤 ${username}` : '';
+  if (role === 'admin') document.getElementById('usersLink').style.display = 'inline';
+
+  function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+  function authHeaders() { return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }; }
+
+  let allLogs = [];
+
+  function renderLogs(logs) {
+    if (!logs.length) {
+      document.getElementById('logsList').innerHTML = '<div class="empty">No logs found.</div>';
+      return;
+    }
+    let html = '<table><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>Severity</th></tr></thead><tbody>';
+    logs.forEach(l => {
+      const sev = l.severity || l.status || 'info';
+      const cls = sev === 'warning' ? 'badge-warning' : sev === 'critical' || sev === 'error' ? 'badge-error' : 'badge-info';
+      html += `<tr>
+        <td>${new Date(l.timestamp).toLocaleString()}</td>
+        <td>${escText(l.user || '—')}</td>
+        <td class="action-text">${escText(l.action || '—')}</td>
+        <td>${escText(l.details || l.deviceName || '—')}</td>
+        <td><span class="badge ${cls}">${escText(sev.toUpperCase())}</span></td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('logsList').innerHTML = html;
+  }
+
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  async function loadLogs() {
+    document.getElementById('logsList').innerHTML = '<div class="loading">Loading…</div>';
+    try {
+      const res = await fetch('/logs', { headers: authHeaders() });
+      if (res.status === 401) { logout(); return; }
+      allLogs = await res.json();
+      filterLogs();
+    } catch (e) {
+      document.getElementById('logsList').innerHTML = '<div class="empty">Error loading logs.</div>';
+    }
+  }
+
+  function filterLogs() {
+    const q = document.getElementById('filterInput').value.toLowerCase();
+    if (!q) { renderLogs(allLogs); return; }
+    const filtered = allLogs.filter(l =>
+      (l.action || '').toLowerCase().includes(q) ||
+      (l.user || '').toLowerCase().includes(q) ||
+      (l.details || '').toLowerCase().includes(q)
+    );
+    renderLogs(filtered);
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('refreshBtn').addEventListener('click', loadLogs);
+  document.getElementById('filterInput').addEventListener('input', filterLogs);
+
+  loadLogs();
+</script>
+</body>
+</html>

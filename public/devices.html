@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartLock — Devices</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
+    nav {
+      background: #0f3460; color: #fff; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 56px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    nav .brand { font-size: 1.3rem; font-weight: 700; text-decoration: none; color: #fff; }
+    nav .links a {
+      color: #ccd; text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.2s;
+    }
+    nav .links a:hover, nav .links a.active { color: #fff; }
+    nav .user { font-size: 0.85rem; color: #aac; margin-left: 20px; }
+    nav .logout { background: #e74c3c; border: none; color: #fff; padding: 6px 14px;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-left: 12px; }
+    nav .logout:hover { background: #c0392b; }
+    .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+    h2 { margin-bottom: 20px; color: #0f3460; }
+    .action-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .btn {
+      padding: 9px 18px; border: none; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .btn-primary { background: #0f3460; color: #fff; }
+    .btn-primary:hover { background: #16213e; }
+    .btn-danger { background: #e74c3c; color: #fff; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-success { background: #27ae60; color: #fff; }
+    .btn-success:hover { background: #219a52; }
+    .btn-warning { background: #f39c12; color: #fff; }
+    .btn-warning:hover { background: #d68910; }
+    .btn-sm { padding: 5px 12px; font-size: 0.82rem; }
+    .devices-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;
+    }
+    .device-card {
+      background: #fff; border-radius: 12px; padding: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      border-left: 5px solid #ddd; transition: box-shadow 0.2s;
+    }
+    .device-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+    .device-card.locked { border-left-color: #e74c3c; }
+    .device-card.unlocked { border-left-color: #27ae60; }
+    .device-card.offline { border-left-color: #bbb; }
+    .device-card .name { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .device-card .location { color: #888; font-size: 0.85rem; margin-bottom: 12px; }
+    .device-card .status-row { display: flex; align-items: center; margin-bottom: 14px; }
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 12px;
+      font-size: 0.78rem; font-weight: 600;
+    }
+    .badge-locked { background: #fdecea; color: #e74c3c; }
+    .badge-unlocked { background: #e8f5e9; color: #27ae60; }
+    .badge-offline { background: #f5f5f5; color: #999; }
+    .device-card .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .loading { text-align: center; padding: 40px; color: #999; }
+    .empty { text-align: center; padding: 30px; color: #bbb; font-style: italic; }
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      align-items: center; justify-content: center; z-index: 100;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 12px; padding: 28px;
+      width: 100%; max-width: 420px; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    }
+    .modal h3 { margin-bottom: 18px; color: #0f3460; }
+    label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #555; font-weight: 600; }
+    input, select {
+      width: 100%; padding: 9px 12px; border: 1.5px solid #ddd;
+      border-radius: 8px; font-size: 0.95rem; margin-bottom: 14px;
+    }
+    input:focus, select:focus { outline: none; border-color: #0f3460; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: #323232; color: #fff;
+      padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; z-index: 200;
+      display: none; animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+    .ip-info { color: #999; font-size: 0.8rem; margin-top: 2px; }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/index.html">🔒 SmartLock</a>
+  <div class="links">
+    <a href="/index.html">Dashboard</a>
+    <a href="/devices.html" class="active">Devices</a>
+    <a href="/notifications.html">Notifications</a>
+    <a href="/logs.html">Logs</a>
+    <a href="/schedules.html">Schedules</a>
+    <a href="/users.html" id="usersLink" style="display:none">Users</a>
+  </div>
+  <div style="display:flex;align-items:center">
+    <span class="user" id="userDisplay"></span>
+    <button class="logout" id="logoutBtn">Logout</button>
+  </div>
+</nav>
+<div class="container">
+  <h2>Devices</h2>
+  <div class="action-row">
+    <button class="btn btn-primary" id="addDeviceBtn">+ Add Device</button>
+    <button class="btn btn-danger" id="lockAllBtn">🔒 Lock All</button>
+    <button class="btn btn-success" id="unlockAllBtn">🔓 Unlock All</button>
+    <button class="btn btn-primary" style="background:#555" id="refreshBtn">↺ Refresh</button>
+  </div>
+  <div id="devicesGrid" class="devices-grid loading">Loading…</div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">Add Device</h3>
+    <label>Device Name</label>
+    <input type="text" id="fName" placeholder="e.g. Front Door Lock" />
+    <label>Location</label>
+    <input type="text" id="fLocation" placeholder="e.g. Main Entrance" />
+    <label>Device ID</label>
+    <input type="text" id="fDeviceId" placeholder="e.g. front-door" />
+    <label>IP Address (optional)</label>
+    <input type="text" id="fIp" placeholder="e.g. 192.168.1.101" />
+    <div class="modal-actions">
+      <button class="btn" style="background:#eee;color:#333" id="cancelModalBtn">Cancel</button>
+      <button class="btn btn-primary" id="saveDeviceBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+  const username = localStorage.getItem('username');
+  if (!token) { window.location.href = '/login.html'; }
+
+  document.getElementById('userDisplay').textContent = username ? `👤 ${username}` : '';
+  if (role === 'admin') document.getElementById('usersLink').style.display = 'inline';
+
+  function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+  function authHeaders() { return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }; }
+
+  function showToast(msg, duration = 2500) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, duration);
+  }
+
+  let editingId = null;
+
+  function statusBadge(s) {
+    const cls = s === 'locked' ? 'badge-locked' : s === 'unlocked' ? 'badge-unlocked' : 'badge-offline';
+    return `<span class="badge ${cls}">${s ? s.toUpperCase() : 'UNKNOWN'}</span>`;
+  }
+
+  async function loadDevices() {
+    document.getElementById('devicesGrid').className = 'devices-grid loading';
+    document.getElementById('devicesGrid').innerHTML = 'Loading…';
+    try {
+      const res = await fetch('/api/devices', { headers: authHeaders() });
+      if (res.status === 401) { logout(); return; }
+      const devices = await res.json();
+      if (!devices.length) {
+        document.getElementById('devicesGrid').className = 'devices-grid';
+        document.getElementById('devicesGrid').innerHTML = '<div class="empty">No devices yet. Add one!</div>';
+        return;
+      }
+      let html = '';
+      devices.forEach(d => {
+        const st = d.status || 'offline';
+        const devId = d.id;
+        html += `<div class="device-card ${st}" data-id="${escAttr(devId)}">
+          <div class="name">${escText(d.name)}</div>
+          <div class="location">📍 ${escText(d.location || '—')}</div>
+          <div class="ip-info">IP: ${escText(d.ip_address || d.ipAddress || '—')}</div>
+          <div class="status-row" style="margin-top:8px">${statusBadge(st)}</div>
+          <div class="card-actions">
+            <button class="btn btn-danger btn-sm" data-action="lock" data-id="${escAttr(devId)}">🔒 Lock</button>
+            <button class="btn btn-success btn-sm" data-action="unlock" data-id="${escAttr(devId)}">🔓 Unlock</button>
+            <button class="btn btn-warning btn-sm" data-action="edit" data-id="${escAttr(devId)}"
+              data-name="${escAttr(d.name)}" data-location="${escAttr(d.location||'')}"
+              data-deviceid="${escAttr(d.deviceId||'')}" data-ip="${escAttr(d.ip_address||d.ipAddress||'')}">Edit</button>
+            <button class="btn btn-danger btn-sm" data-action="delete" data-id="${escAttr(devId)}" data-name="${escAttr(d.name)}">Delete</button>
+          </div>
+        </div>`;
+      });
+      document.getElementById('devicesGrid').className = 'devices-grid';
+      document.getElementById('devicesGrid').innerHTML = html;
+    } catch (e) {
+      document.getElementById('devicesGrid').innerHTML = '<div class="empty">Error loading devices.</div>';
+    }
+  }
+
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function lockDevice(id) {
+    const res = await fetch(`/devices/${id}/lock`, { method: 'POST', headers: authHeaders() });
+    const data = await res.json();
+    if (data.success) showToast('Device locked ✅');
+    else showToast('Error: ' + (data.error || 'Unknown error'));
+    loadDevices();
+  }
+
+  async function unlockDevice(id) {
+    const res = await fetch(`/devices/${id}/unlock`, { method: 'POST', headers: authHeaders() });
+    const data = await res.json();
+    if (data.success) showToast('Device unlocked 🔓');
+    else showToast('Error: ' + (data.error || 'Unknown error'));
+    loadDevices();
+  }
+
+  async function deleteDevice(id, name) {
+    if (!confirm(`Delete device "${name}"?`)) return;
+    const res = await fetch(`/api/devices/${id}`, { method: 'DELETE', headers: authHeaders() });
+    const data = await res.json();
+    if (data.success) showToast('Device deleted.');
+    else showToast('Error: ' + (data.error || 'Unknown'));
+    loadDevices();
+  }
+
+  function openAddModal() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Add Device';
+    document.getElementById('fName').value = '';
+    document.getElementById('fLocation').value = '';
+    document.getElementById('fDeviceId').value = '';
+    document.getElementById('fIp').value = '';
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function editDevice(id, name, location, deviceId, ip) {
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Device';
+    document.getElementById('fName').value = name;
+    document.getElementById('fLocation').value = location;
+    document.getElementById('fDeviceId').value = deviceId;
+    document.getElementById('fIp').value = ip;
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+  async function saveDevice() {
+    const body = {
+      name: document.getElementById('fName').value.trim(),
+      location: document.getElementById('fLocation').value.trim(),
+      deviceId: document.getElementById('fDeviceId').value.trim(),
+      ipAddress: document.getElementById('fIp').value.trim()
+    };
+    if (!body.name) { alert('Name is required.'); return; }
+    let res;
+    if (editingId) {
+      res = await fetch(`/api/devices/${editingId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
+    } else {
+      res = await fetch('/api/devices', { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    }
+    const data = await res.json();
+    if (data.success || data.device) {
+      showToast(editingId ? 'Device updated ✅' : 'Device added ✅');
+      closeModal();
+      loadDevices();
+    } else {
+      alert('Error: ' + (data.error || 'Unknown'));
+    }
+  }
+
+  async function bulkLock() {
+    await fetch('/lock', { method: 'POST', headers: authHeaders() });
+    showToast('All devices locked 🔒');
+    loadDevices();
+  }
+
+  async function bulkUnlock() {
+    await fetch('/unlock', { method: 'POST', headers: authHeaders() });
+    showToast('All devices unlocked 🔓');
+    loadDevices();
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('addDeviceBtn').addEventListener('click', openAddModal);
+  document.getElementById('lockAllBtn').addEventListener('click', bulkLock);
+  document.getElementById('unlockAllBtn').addEventListener('click', bulkUnlock);
+  document.getElementById('refreshBtn').addEventListener('click', loadDevices);
+  document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+  document.getElementById('saveDeviceBtn').addEventListener('click', saveDevice);
+
+  document.getElementById('modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  document.getElementById('devicesGrid').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action][data-id]');
+    if (!btn) return;
+    const { action, id, name, location, deviceid, ip } = btn.dataset;
+    if (action === 'lock') lockDevice(id);
+    else if (action === 'unlock') unlockDevice(id);
+    else if (action === 'edit') editDevice(id, name || '', location || '', deviceid || '', ip || '');
+    else if (action === 'delete') deleteDevice(id, name || '');
+  });
+
+  loadDevices();
+</script>
+</body>
+</html>
