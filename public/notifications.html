@@ -1,179 +1,274 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartLock — Notifications</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
-    nav {
-      background: #0f3460; color: #fff; padding: 0 24px;
-      display: flex; align-items: center; justify-content: space-between; height: 56px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    nav .brand { font-size: 1.3rem; font-weight: 700; text-decoration: none; color: #fff; }
-    nav .links a { color: #ccd; text-decoration: none; margin-left: 20px; font-size: 0.9rem; }
-    nav .links a:hover, nav .links a.active { color: #fff; }
-    nav .user { font-size: 0.85rem; color: #aac; margin-left: 20px; }
-    nav .logout { background: #e74c3c; border: none; color: #fff; padding: 6px 14px;
-      border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-left: 12px; }
-    nav .logout:hover { background: #c0392b; }
-    .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
-    h2 { margin-bottom: 20px; color: #0f3460; }
-    .section { background: #fff; border-radius: 12px; padding: 24px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
-    .action-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end; }
-    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .btn-primary { background: #0f3460; color: #fff; }
-    .btn-primary:hover { background: #16213e; }
-    .btn-danger { background: #e74c3c; color: #fff; }
-    .btn-danger:hover { background: #c0392b; }
-    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-    th { background: #f8f9fa; color: #555; font-weight: 600; }
-    tr:last-child td { border-bottom: none; }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
-    .badge-info { background: #e3f2fd; color: #1976d2; }
-    .badge-warning { background: #fff8e1; color: #f57c00; }
-    .badge-critical { background: #fdecea; color: #e74c3c; }
-    .loading { text-align: center; padding: 30px; color: #999; }
-    .empty { text-align: center; padding: 20px; color: #bbb; font-style: italic; }
-    input, select { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.9rem; }
-    input:focus, select:focus { outline: none; border-color: #0f3460; }
-    .toast { position: fixed; bottom: 24px; right: 24px; background: #323232; color: #fff;
-      padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; z-index: 200; display: none; }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications — SmartLock</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<!-- Font Awesome 6 Free CDN (Primary) -->
+<link rel="stylesheet" 
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+  integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- Font Awesome 6 Free CDN (Backup) -->
+<link rel="stylesheet" 
+  href="https://use.fontawesome.com/releases/v6.4.0/css/all.css" 
+  crossorigin="anonymous">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+  min-height: 100vh;
+  padding: 32px 20px;
+  margin: 0;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.fas, .far, .fab, .fa {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.wrap {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.top a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.3s ease;
+}
+
+.top a:hover {
+  opacity: 0.8;
+}
+
+button {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  font-family: 'Inter', sans-serif;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.box {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.box > div:first-child {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+#msg {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  color: #000000;
+  width: 100%;
+  font-weight: 500;
+  flex: 1;
+}
+
+#msg::placeholder {
+  color: #64748b;
+}
+
+#msg:focus {
+  outline: none;
+  border-color: #667eea;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+select {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  color: #000000;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: #667eea;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.note {
+  padding: 14px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+  border-left: 4px solid;
+}
+
+.note.info {
+  background: #f0f9ff;
+  border-left-color: #38bdf8;
+}
+
+.note.warning {
+  background: #fff7ed;
+  border-left-color: #f59e0b;
+}
+
+.note.critical {
+  background: #fff1f2;
+  border-left-color: #ef4444;
+}
+
+.note > div:first-child {
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 4px;
+}
+
+.note .muted-small {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.note > div:nth-child(3) {
+  color: #000000;
+  margin-top: 6px;
+}
+
+.note button {
+  padding: 8px 12px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .box > div:first-child {
+    flex-direction: column;
+  }
+
+  #msg {
+    width: 100%;
+  }
+
+  body {
+    padding: 20px 12px;
+  }
+}
+</style>
 </head>
 <body>
-<nav>
-  <a class="brand" href="/index.html">🔒 SmartLock</a>
-  <div class="links">
-    <a href="/index.html">Dashboard</a>
-    <a href="/devices.html">Devices</a>
-    <a href="/notifications.html" class="active">Notifications</a>
-    <a href="/logs.html">Logs</a>
-    <a href="/schedules.html">Schedules</a>
-    <a href="/users.html" id="usersLink" style="display:none">Users</a>
-  </div>
-  <div style="display:flex;align-items:center">
-    <span class="user" id="userDisplay"></span>
-    <button class="logout" id="logoutBtn">Logout</button>
-  </div>
-</nav>
-<div class="container">
-  <h2>Notifications</h2>
-  <div class="action-row">
-    <div>
-      <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:4px">New Notification</label>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input type="text" id="newMsg" placeholder="Message…" style="width:260px" />
-        <select id="newLevel">
-          <option value="info">Info</option>
-          <option value="warning">Warning</option>
-          <option value="critical">Critical</option>
-        </select>
-        <button class="btn btn-primary" id="addNotifBtn">Add</button>
-      </div>
+<div class="wrap">
+  <div class="top"><div><a href="/index.html">← Dashboard</a></div><div><button onclick="logout()"><i class="fas fa-right-from-bracket"></i> Sign out</button></div></div>
+  <div class="box">
+    <h3 style="margin-top:0; margin-bottom:16px; font-family:'Poppins', sans-serif;"><i class="fas fa-bell"></i> Notifications</h3>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+      <input id="msg" placeholder="Message" />
+      <select id="lvl"><option value="info">Info</option><option value="warning">Warning</option><option value="critical">Critical</option></select>
+      <button onclick="send()"><i class="fas fa-paper-plane"></i> Send</button>
+      <button onclick="clearAll()"><i class="fas fa-trash-can"></i> Clear</button>
     </div>
-    <button class="btn btn-primary" style="background:#555;align-self:flex-end" id="refreshBtn">↺ Refresh</button>
-  </div>
-  <div class="section">
-    <div id="notifsList" class="loading">Loading…</div>
+    <div id="list"></div>
   </div>
 </div>
-<div class="toast" id="toast"></div>
 <script>
-  const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
-  const username = localStorage.getItem('username');
-  if (!token) { window.location.href = '/login.html'; }
-
-  document.getElementById('userDisplay').textContent = username ? `👤 ${username}` : '';
-  if (role === 'admin') document.getElementById('usersLink').style.display = 'inline';
-
-  function logout() { localStorage.clear(); window.location.href = '/login.html'; }
-  function authHeaders() { return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }; }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.style.display = 'block';
-    setTimeout(() => { t.style.display = 'none'; }, 2500);
-  }
-
-  async function loadNotifications() {
-    document.getElementById('notifsList').innerHTML = '<div class="loading">Loading…</div>';
-    try {
-      const res = await fetch('/notifications', { headers: authHeaders() });
-      if (res.status === 401) { logout(); return; }
-      const notifs = await res.json();
-      if (!notifs.length) {
-        document.getElementById('notifsList').innerHTML = '<div class="empty">No notifications.</div>';
-        return;
-      }
-      let html = '<table><thead><tr><th>Time</th><th>Level</th><th>Message</th><th>Action</th></tr></thead><tbody>';
-      notifs.forEach(n => {
-        const cls = n.level === 'warning' ? 'badge-warning' : n.level === 'critical' ? 'badge-critical' : 'badge-info';
-        html += `<tr>
-          <td>${new Date(n.timestamp).toLocaleString()}</td>
-          <td><span class="badge ${cls}">${escText((n.level||'info').toUpperCase())}</span></td>
-          <td>${escText(n.message)}</td>
-          <td><button class="btn btn-danger btn-sm" data-action="delete" data-id="${escAttr(n.id)}">Delete</button></td>
-        </tr>`;
-      });
-      html += '</tbody></table>';
-      document.getElementById('notifsList').innerHTML = html;
-    } catch (e) {
-      document.getElementById('notifsList').innerHTML = '<div class="empty">Error loading notifications.</div>';
-    }
-  }
-
-  async function addNotification() {
-    const message = document.getElementById('newMsg').value.trim();
-    const level = document.getElementById('newLevel').value;
-    if (!message) { alert('Please enter a message.'); return; }
-    const res = await fetch('/notifications', {
-      method: 'POST', headers: authHeaders(),
-      body: JSON.stringify({ message, level })
-    });
-    const data = await res.json();
-    if (data.success) {
-      document.getElementById('newMsg').value = '';
-      showToast('Notification added ✅');
-      loadNotifications();
-    } else {
-      alert('Error: ' + (data.error || 'Unknown'));
-    }
-  }
-
-  async function deleteNotif(id) {
-    const res = await fetch(`/notifications/${id}`, { method: 'DELETE', headers: authHeaders() });
-    const data = await res.json();
-    if (data.success) { showToast('Deleted.'); loadNotifications(); }
-    else alert('Error: ' + (data.error || 'Unknown'));
-  }
-
-  function escText(s) {
-    const div = document.createElement('div');
-    div.textContent = String(s);
-    return div.innerHTML;
-  }
-
-  function escAttr(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  document.getElementById('logoutBtn').addEventListener('click', logout);
-  document.getElementById('addNotifBtn').addEventListener('click', addNotification);
-  document.getElementById('refreshBtn').addEventListener('click', loadNotifications);
-
-  document.getElementById('notifsList').addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-action="delete"][data-id]');
-    if (btn) deleteNotif(btn.dataset.id);
-  });
-
-  loadNotifications();
+const api = location.origin; let token = localStorage.getItem('sl_token'); if(!token) location.href = '/login.html';
+function auth(){ const h={'Content-Type':'application/json'}; if(token) h['Authorization']='Bearer '+token; return h; }
+function showToast(m){ alert(m); }
+async function load(){ 
+  const res = await fetch(api + '/notifications', { headers: auth() }); 
+  const list = await res.json(); 
+  const el=document.getElementById('list'); 
+  el.innerHTML=''; 
+  const icons = { info: 'fa-circle-info', warning: 'fa-triangle-exclamation', critical: 'fa-circle-xmark' };
+  list.forEach(n=>{ 
+    const div=document.createElement('div'); 
+    div.className='note '+(n.level||'info'); 
+    const icon = icons[n.level] || 'fa-bell';
+    div.innerHTML=`<div style="font-weight:700"><i class="fas ${icon}"></i> ${escape(n.level.toUpperCase())}</div><div class="muted-small">${new Date(n.timestamp).toLocaleString()}</div><div style="margin-top:6px">${escape(n.message)}</div><div style="margin-top:8px"><button onclick="del('${encodeURIComponent(n.id)}')"><i class="fas fa-trash"></i> Delete</button></div>`; 
+    el.appendChild(div); 
+  }); 
+}
+async function send(){ const m=document.getElementById('msg').value; const l=document.getElementById('lvl').value; await fetch(api+'/notifications',{method:'POST',headers:auth(),body:JSON.stringify({message:m,level:l})}); showToast('Sent'); load(); }
+async function del(id){ await fetch(api+'/notifications/'+decodeURIComponent(id),{method:'DELETE',headers:auth()}); showToast('Deleted'); load(); }
+async function clearAll(){ if(!confirm('Clear all notifications?')) return; const list = await fetch(api + '/notifications', { headers: auth() }).then(r=>r.json()); for(const n of list){ await fetch(api + '/notifications/'+n.id, { method:'DELETE', headers: auth() }); } load(); }
+function logout(){ localStorage.removeItem('sl_token'); location.href = '/login.html' }
+load();
 </script>
-</body>
-</html>
+</body></html>

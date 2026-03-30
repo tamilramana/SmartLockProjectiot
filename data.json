@@ -34,7 +34,7 @@
       "location": "Main Entrance",
       "ip_address": "192.168.1.101",
       "api_key": "sample-api-key-1",
-      "status": "locked",
+      "status": "unlocked",
       "owner_id": "admin-1"
     },
     {
@@ -56,11 +56,116 @@
       "location": "Backyard",
       "ip_address": "192.168.1.103",
       "api_key": "sample-api-key-3",
+      "status": "unlocked",
+      "owner_id": "admin-1"
+    },
+    {
+      "id": "e84d0f6b-72f2-4cae-a003-f07422411b93",
+      "device_id": "mon-back",
+      "deviceId": "mon-back",
+      "name": "mon",
+      "location": "back",
+      "ip_address": "192.168.233.12",
+      "api_key": "58f47cc0e4a945546766e00572edd7e661fe58f8e73af67be886b843a6170be3",
       "status": "offline",
       "owner_id": "admin-1"
     }
   ],
   "logs": [
+    {
+      "id": "70be91b9-907f-485b-bb7d-27808d8abde6",
+      "timestamp": "2026-03-30T15:31:53.299Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "device:create",
+      "deviceId": "e84d0f6b-72f2-4cae-a003-f07422411b93",
+      "details": "Created device mon",
+      "severity": "info",
+      "log_hmac": "2b63dfa2e8b125f8822c71e51a4899ff493cf69c7f640c1993462e2e2077377a"
+    },
+    {
+      "id": "6ed75448-c6aa-40a6-a9e2-77486f2b8df0",
+      "timestamp": "2026-03-30T15:30:38.404Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "bulk:unlock",
+      "details": "Unlocked all devices",
+      "severity": "info",
+      "log_hmac": "befeff9609ce8b480ac2b43fa7aac3d612a260510834d57ae35ce176e1f03ad9"
+    },
+    {
+      "id": "e0e0a8ae-3b9b-4d64-96fe-aa2773f6fb5d",
+      "timestamp": "2026-03-30T15:30:36.163Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "bulk:lock",
+      "details": "Locked all devices",
+      "severity": "info",
+      "log_hmac": "60454ada828547322998bf020813e05b6dcedb13495848460fd527143ea7dd33"
+    },
+    {
+      "id": "b953bc59-8be1-4794-beab-940ad321e9eb",
+      "timestamp": "2026-03-30T14:10:44.860Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "bulk:unlock",
+      "details": "Unlocked all devices",
+      "severity": "info",
+      "log_hmac": "b48c8b106c38aad1655e7304dd6010b3169739d92dd68f4509eeb9b1347b6c1e"
+    },
+    {
+      "id": "0d322a76-4ebc-4185-a5d7-293684186555",
+      "timestamp": "2026-03-30T13:53:45.544Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "device:lock",
+      "deviceId": "device-3",
+      "details": "Successfully locked Backyard Gate",
+      "severity": "info",
+      "log_hmac": "dc9ac86766e9d313d50359b8dc3dbe2378f7d6a7e2f5190515e61a1264aa6c08"
+    },
+    {
+      "id": "8031d97e-e00f-4ada-9029-5ecc82cfcf27",
+      "timestamp": "2026-03-30T13:53:44.542Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "device:lock",
+      "deviceId": "device-2",
+      "details": "Successfully locked Garage Door",
+      "severity": "info",
+      "log_hmac": "24407cdeef49287c402b71b9d730eb669c8e3403d8303dd9fc44a0c28b6ba8a6"
+    },
+    {
+      "id": "a5e65295-f701-40e6-bdb1-8f73f3a095b3",
+      "timestamp": "2026-03-30T13:53:43.884Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "device:lock",
+      "deviceId": "device-1",
+      "details": "Successfully locked Front Door Lock",
+      "severity": "info",
+      "log_hmac": "ee6f55d035cb874137a50343ab617ffe1745e35cabf557df34c3d9635fb79b01"
+    },
+    {
+      "id": "307a493d-7c97-436e-a239-52a9146f3c75",
+      "timestamp": "2026-03-30T13:53:40.951Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "bulk:unlock",
+      "details": "Unlocked all devices",
+      "severity": "info",
+      "log_hmac": "63c6493a9ecf8d12ab0def754ceadf43b6cc1dc12d6c9d2a501901f3fad32ba7"
+    },
+    {
+      "id": "59a93e5a-08fd-454f-bdc4-350e3d9e8595",
+      "timestamp": "2026-03-30T13:53:38.105Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "bulk:lock",
+      "details": "Locked all devices",
+      "severity": "info",
+      "log_hmac": "f40cb66e0449d7c440b7bcb14c5b193e9755aa28a85e1b30d6305394d557d824"
+    },
     {
       "id": "01d6562c-c7ad-4842-8592-a2690aae0ef6",
       "timestamp": "2026-03-30T13:33:30.353Z",
@@ -97,6 +202,24 @@
   ],
   "notifications": [
     {
+      "id": "846189ef-2e40-44c3-a660-2eee89de14ae",
+      "timestamp": "2026-03-30T13:53:45.546Z",
+      "level": "info",
+      "message": "Backyard Gate has been locked by admin"
+    },
+    {
+      "id": "9e8d14e6-4319-4bf3-832d-55e7fb8a9d7f",
+      "timestamp": "2026-03-30T13:53:44.545Z",
+      "level": "info",
+      "message": "Garage Door has been locked by admin"
+    },
+    {
+      "id": "d7edcd33-4e52-4e3e-9186-b1633a5d39c0",
+      "timestamp": "2026-03-30T13:53:43.887Z",
+      "level": "info",
+      "message": "Front Door Lock has been locked by admin"
+    },
+    {
       "id": "0ab4bb1a-f97c-4964-9d60-5ca63c6d485e",
       "timestamp": "2026-03-30T13:33:30.354Z",
       "level": "info",
@@ -123,12 +246,12 @@
   ],
   "schedules": [
     {
-      "id": "d52d3ae3-4b0f-4369-8911-f19ee7170d5d",
+      "id": "51c9a361-10fa-463c-b728-ec6e9284dbb1",
       "deviceId": "device-1",
       "action": "lock",
-      "time": "2026-03-30T14:14:38.764Z",
+      "time": "2026-03-30T16:29:29.346Z",
       "created_by": "admin-1",
-      "created_at": "2026-03-30T13:14:38.764Z"
+      "created_at": "2026-03-30T15:29:29.346Z"
     }
   ]
 }

@@ -1,265 +1,276 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartLock — Users</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
-    nav {
-      background: #0f3460; color: #fff; padding: 0 24px;
-      display: flex; align-items: center; justify-content: space-between; height: 56px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    nav .brand { font-size: 1.3rem; font-weight: 700; text-decoration: none; color: #fff; }
-    nav .links a { color: #ccd; text-decoration: none; margin-left: 20px; font-size: 0.9rem; }
-    nav .links a:hover, nav .links a.active { color: #fff; }
-    nav .user { font-size: 0.85rem; color: #aac; margin-left: 20px; }
-    nav .logout { background: #e74c3c; border: none; color: #fff; padding: 6px 14px;
-      border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-left: 12px; }
-    nav .logout:hover { background: #c0392b; }
-    .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
-    h2 { margin-bottom: 20px; color: #0f3460; }
-    .section { background: #fff; border-radius: 12px; padding: 24px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 24px; }
-    .section h3 { margin-bottom: 16px; color: #333; font-size: 1.05rem; }
-    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .btn-primary { background: #0f3460; color: #fff; }
-    .btn-primary:hover { background: #16213e; }
-    .btn-danger { background: #e74c3c; color: #fff; }
-    .btn-danger:hover { background: #c0392b; }
-    .btn-warning { background: #f39c12; color: #fff; }
-    .btn-warning:hover { background: #d68910; }
-    .btn-sm { padding: 5px 12px; font-size: 0.82rem; }
-    label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #555; font-weight: 600; }
-    input, select { width: 100%; padding: 9px 12px; border: 1.5px solid #ddd;
-      border-radius: 8px; font-size: 0.95rem; margin-bottom: 14px; }
-    input:focus, select:focus { outline: none; border-color: #0f3460; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-    th { background: #f8f9fa; color: #555; font-weight: 600; }
-    tr:last-child td { border-bottom: none; }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
-    .badge-admin { background: #e8eaf6; color: #3949ab; }
-    .badge-user { background: #f5f5f5; color: #555; }
-    .loading { text-align: center; padding: 30px; color: #999; }
-    .empty { text-align: center; padding: 20px; color: #bbb; font-style: italic; }
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-      align-items: center; justify-content: center; z-index: 100; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: #fff; border-radius: 12px; padding: 28px;
-      width: 100%; max-width: 400px; box-shadow: 0 8px 40px rgba(0,0,0,0.25); }
-    .modal h3 { margin-bottom: 18px; color: #0f3460; }
-    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
-    .toast { position: fixed; bottom: 24px; right: 24px; background: #323232; color: #fff;
-      padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; z-index: 200; display: none; }
-    .mfa-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
-    .mfa-on { background: #e8f5e9; color: #27ae60; }
-    .mfa-off { background: #f5f5f5; color: #aaa; }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Users — SmartLock</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+  min-height: 100vh;
+  padding: 32px 20px;
+  margin: 0;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.header {
+  max-width: 1000px;
+  margin: 0 auto 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.header a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.3s ease;
+}
+
+.header a:hover {
+  opacity: 0.8;
+}
+
+button {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  font-family: 'Inter', sans-serif;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.box {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.box h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000000;
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.box > div:nth-child(2) {
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 700;
+  color: #000000;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+table tbody tr {
+  transition: all 0.3s ease;
+}
+
+table tbody tr:hover {
+  background: #f5f7ff;
+}
+
+#modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
+
+#modal > div {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 32px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+#modal h4 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 16px;
+  font-family: 'Poppins', sans-serif;
+}
+
+#modal input,
+#modal select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  color: #000000;
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+#modal input::placeholder {
+  color: #64748b;
+}
+
+#modal input:focus,
+#modal select:focus {
+  outline: none;
+  border-color: #667eea;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#modal > div > div:last-child {
+  text-align: right;
+  margin-top: 20px;
+}
+
+#modal button {
+  margin-left: 8px;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  body {
+    padding: 20px 12px;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  table th,
+  table td {
+    padding: 8px;
+  }
+}
+</style>
 </head>
 <body>
-<nav>
-  <a class="brand" href="/index.html">🔒 SmartLock</a>
-  <div class="links">
-    <a href="/index.html">Dashboard</a>
-    <a href="/devices.html">Devices</a>
-    <a href="/notifications.html">Notifications</a>
-    <a href="/logs.html">Logs</a>
-    <a href="/schedules.html">Schedules</a>
-    <a href="/users.html" class="active" id="usersLink">Users</a>
-  </div>
-  <div style="display:flex;align-items:center">
-    <span class="user" id="userDisplay"></span>
-    <button class="logout" id="logoutBtn">Logout</button>
-  </div>
-</nav>
-<div class="container">
-  <h2>User Management</h2>
+<div class="header"><a href="/index.html">← Dashboard</a><div><button onclick="logout()">Sign out</button></div></div>
+<div class="box">
+  <h3>Users</h3>
+  <div style="margin-bottom:8px"><button onclick="openAdd()">+ Add User</button></div>
+  <table id="tbl"><thead><tr><th>Username</th><th>Role</th><th>2FA</th><th>Actions</th></tr></thead><tbody></tbody></table>
+</div>
 
-  <div class="section">
-    <h3>Add New User</h3>
-    <div class="form-row">
-      <div>
-        <label>Username</label>
-        <input type="text" id="newUsername" placeholder="Username" />
-      </div>
-      <div>
-        <label>Password</label>
-        <input type="password" id="newPassword" placeholder="Password" />
-      </div>
-    </div>
-    <div class="form-row" style="margin-top:-8px">
-      <div>
-        <label>Role</label>
-        <select id="newRole">
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-      <div style="display:flex;align-items:flex-end;padding-bottom:14px">
-        <button class="btn btn-primary" style="width:100%" id="addUserBtn">+ Add User</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h3>All Users</h3>
-    <div id="usersList" class="loading">Loading…</div>
+<div id="modal">
+  <div>
+    <h4 id="mt">Add User</h4>
+    <div><input id="u_name" placeholder="Username" /></div>
+    <div><input id="u_pwd" placeholder="Password" /></div>
+    <div style="margin-top:8px"><select id="u_role"><option value="user">user</option><option value="admin">admin</option></select></div>
+    <div style="text-align:right;margin-top:20px"><button onclick="closeM()">Cancel</button><button onclick="save()">Save</button></div>
   </div>
 </div>
 
-<!-- Edit Modal -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <h3>Edit User: <span id="editUsername"></span></h3>
-    <label>New Password (leave blank to keep current)</label>
-    <input type="password" id="editPassword" placeholder="New password…" />
-    <label>Role</label>
-    <select id="editRole">
-      <option value="user">User</option>
-      <option value="admin">Admin</option>
-    </select>
-    <div class="modal-actions">
-      <button class="btn" style="background:#eee;color:#333" id="cancelModalBtn">Cancel</button>
-      <button class="btn btn-primary" id="saveUserBtn">Save</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
 <script>
-  const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
-  const username = localStorage.getItem('username');
-  if (!token) { window.location.href = '/login.html'; }
-  if (role !== 'admin') { window.location.href = '/index.html'; }
+const api = location.origin;
+let token = localStorage.getItem('sl_token'); if(!token) location.href = '/login.html'; // changed
+function authHeaders(){ const h={'Content-Type':'application/json'}; if(token) h['Authorization']='Bearer '+token; return h; }
+function showToast(m){ alert(m); }
 
-  document.getElementById('userDisplay').textContent = username ? `👤 ${username}` : '';
-
-  function logout() { localStorage.clear(); window.location.href = '/login.html'; }
-  function authHeaders() { return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }; }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.style.display = 'block';
-    setTimeout(() => { t.style.display = 'none'; }, 2500);
-  }
-
-  let editingUsername = null;
-
-  async function loadUsers() {
-    document.getElementById('usersList').innerHTML = '<div class="loading">Loading…</div>';
-    try {
-      const res = await fetch('/api/users', { headers: authHeaders() });
-      if (res.status === 401) { logout(); return; }
-      const users = await res.json();
-      if (!users.length) {
-        document.getElementById('usersList').innerHTML = '<div class="empty">No users found.</div>';
-        return;
-      }
-      let html = '<table><thead><tr><th>Username</th><th>Role</th><th>MFA</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
-      users.forEach(u => {
-        const roleCls = u.role === 'admin' ? 'badge-admin' : 'badge-user';
-        const mfaCls = u.mfa_enabled ? 'mfa-on' : 'mfa-off';
-        const mfaText = u.mfa_enabled ? '2FA ON' : '2FA OFF';
-        html += `<tr>
-          <td><strong>${escText(u.username)}</strong></td>
-          <td><span class="badge ${roleCls}">${escText(u.role.toUpperCase())}</span></td>
-          <td><span class="mfa-badge ${mfaCls}">${escText(mfaText)}</span></td>
-          <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
-          <td>
-            <button class="btn btn-warning btn-sm" data-action="edit" data-username="${escAttr(u.username)}" data-role="${escAttr(u.role)}">Edit</button>
-            <button class="btn btn-danger btn-sm" style="margin-left:6px" data-action="delete" data-username="${escAttr(u.username)}" ${u.username === username ? 'disabled title="Cannot delete yourself"' : ''}>Delete</button>
-          </td>
-        </tr>`;
-      });
-      html += '</tbody></table>';
-      document.getElementById('usersList').innerHTML = html;
-    } catch (e) {
-      document.getElementById('usersList').innerHTML = '<div class="empty">Error loading users.</div>';
-    }
-  }
-
-  async function addUser() {
-    const newUsername = document.getElementById('newUsername').value.trim();
-    const password = document.getElementById('newPassword').value;
-    const newRole = document.getElementById('newRole').value;
-    if (!newUsername || !password) { alert('Username and password are required.'); return; }
-    const res = await fetch('/api/users', {
-      method: 'POST', headers: authHeaders(),
-      body: JSON.stringify({ username: newUsername, password, role: newRole })
-    });
-    const data = await res.json();
-    if (data.success) {
-      document.getElementById('newUsername').value = '';
-      document.getElementById('newPassword').value = '';
-      showToast('User added ✅');
-      loadUsers();
-    } else {
-      alert('Error: ' + (data.error || 'Unknown'));
-    }
-  }
-
-  function openEdit(uname, urole) {
-    editingUsername = uname;
-    document.getElementById('editUsername').textContent = uname;
-    document.getElementById('editPassword').value = '';
-    document.getElementById('editRole').value = urole;
-    document.getElementById('modal').classList.add('open');
-  }
-
-  function closeModal() { document.getElementById('modal').classList.remove('open'); }
-
-  async function saveUser() {
-    const password = document.getElementById('editPassword').value;
-    const newRole = document.getElementById('editRole').value;
-    const body = { role: newRole };
-    if (password) body.password = password;
-    const res = await fetch(`/users/${editingUsername}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
-    const data = await res.json();
-    if (data.success) { showToast('User updated ✅'); closeModal(); loadUsers(); }
-    else alert('Error: ' + (data.error || 'Unknown'));
-  }
-
-  async function deleteUser(uname) {
-    if (!confirm(`Delete user "${uname}"? This cannot be undone.`)) return;
-    const res = await fetch(`/users/${uname}`, { method: 'DELETE', headers: authHeaders() });
-    const data = await res.json();
-    if (data.success) { showToast('User deleted.'); loadUsers(); }
-    else alert('Error: ' + (data.error || 'Unknown'));
-  }
-
-  function escText(s) {
-    const div = document.createElement('div');
-    div.textContent = String(s);
-    return div.innerHTML;
-  }
-
-  function escAttr(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  document.getElementById('logoutBtn').addEventListener('click', logout);
-  document.getElementById('addUserBtn').addEventListener('click', addUser);
-  document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
-  document.getElementById('saveUserBtn').addEventListener('click', saveUser);
-
-  document.getElementById('modal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('modal')) closeModal();
-  });
-
-  document.getElementById('usersList').addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-action][data-username]');
-    if (!btn || btn.disabled) return;
-    const { action, username: uname, role: urole } = btn.dataset;
-    if (action === 'edit') openEdit(uname, urole || 'user');
-    else if (action === 'delete') deleteUser(uname);
-  });
-
-  loadUsers();
+async function getUsers(){ const res=await fetch(api+'/users',{headers:authHeaders()}); if(res.status===401){ alert('Auth'); return } const list=await res.json(); const tbody=document.querySelector('#tbl tbody'); tbody.innerHTML=''; list.forEach(u=>{ const tr=document.createElement('tr'); const mfa = u.mfa_enabled ? 'Enabled' : 'Disabled'; tr.innerHTML=`<td>${escape(u.username)}</td><td>${escape(u.role||'user')}</td><td>${mfa}</td><td><button onclick="edit('${escape(u.username)}')">Edit</button> <button onclick="del('${encodeURIComponent(u.username)}')">Delete</button></td>`; tbody.appendChild(tr); }); }
+function escape(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function openAdd(){ document.getElementById('mt').innerText='Add User'; document.getElementById('u_name').value=''; document.getElementById('u_pwd').value=''; document.getElementById('u_role').value='user'; document.getElementById('u_name').disabled=false; document.getElementById('modal').style.display='flex'; editing=null;}
+function closeM(){ document.getElementById('modal').style.display='none'; }
+let editing = null;
+async function save(){ const username=document.getElementById('u_name').value; const pwd=document.getElementById('u_pwd').value; const role=document.getElementById('u_role').value; if(editing){ await fetch(api+'/users/'+encodeURIComponent(username),{method:'PUT',headers:authHeaders(),body:JSON.stringify({password:pwd||undefined,role})}); showToast('Updated') } else { await fetch(api+'/users',{method:'POST',headers:authHeaders(),body:JSON.stringify({username,password:pwd,role})}); showToast('Added') } closeM(); getUsers(); }
+async function edit(username){ editing=username; document.getElementById('mt').innerText='Edit User'; document.getElementById('u_name').value=username; document.getElementById('u_name').disabled=true; document.getElementById('u_pwd').value=''; document.getElementById('modal').style.display='flex'; }
+async function del(encoded){ if(!confirm('Delete user?')) return; const u=decodeURIComponent(encoded); await fetch(api+'/users/'+u,{method:'DELETE',headers:authHeaders()}); showToast('Deleted'); getUsers(); }
+function logout(){ localStorage.removeItem('sl_token'); location.href = '/login.html'; } // changed
+getUsers();
 </script>
 </body>
 </html>

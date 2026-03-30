@@ -1,230 +1,1706 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartLock — Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://use.fontawesome.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <title>SmartLock Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
-    nav {
-      background: #0f3460; color: #fff; padding: 0 24px;
-      display: flex; align-items: center; justify-content: space-between; height: 56px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    :root {
+      --bg: #f0f4f9;
+      --card: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #475569;
+      --accent: #667eea;
+      --accent-dark: #764ba2;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --glass: rgba(255, 255, 255, 0.7);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
-    nav .brand { font-size: 1.3rem; font-weight: 700; text-decoration: none; color: #fff; }
-    nav .links a {
-      color: #ccd; text-decoration: none; margin-left: 20px;
-      font-size: 0.9rem; transition: color 0.2s;
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    nav .links a:hover, nav .links a.active { color: #fff; }
-    nav .user { font-size: 0.85rem; color: #aac; margin-left: 20px; }
-    nav .logout { background: #e74c3c; border: none; color: #fff; padding: 6px 14px;
-      border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-left: 12px; }
-    nav .logout:hover { background: #c0392b; }
-    .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
-    h2 { margin-bottom: 20px; color: #0f3460; }
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px; margin-bottom: 30px;
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+      background-attachment: fixed;
+      background-size: 400% 400%;
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+      font-weight: 500;
+      animation: gradientShift 15s ease infinite;
     }
-    .stat-card {
-      background: #fff; border-radius: 12px; padding: 24px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07); text-align: center;
+
+    /* ── ICON FIX ── */
+    i.fas, i.far, i.fab, i.fa-solid, i.fa-regular, i.fa-brands {
+      font-family: "Font Awesome 6 Free" !important;
+      font-weight: 900 !important;
+      font-style: normal !important;
+      display: inline-block !important;
+      text-rendering: auto !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
     }
-    .stat-card .icon { font-size: 2.2rem; margin-bottom: 8px; }
-    .stat-card .value { font-size: 2rem; font-weight: 700; color: #0f3460; }
-    .stat-card .label { font-size: 0.85rem; color: #888; margin-top: 4px; }
-    .section { background: #fff; border-radius: 12px; padding: 24px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 24px; }
-    .section h3 { margin-bottom: 16px; color: #333; font-size: 1.1rem; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-    th { background: #f8f9fa; color: #555; font-weight: 600; }
-    tr:last-child td { border-bottom: none; }
+
+    i.fab {
+      font-family: "Font Awesome 6 Brands" !important;
+      font-weight: 400 !important;
+    }
+
+    .icon-fallback {
+      display: inline-block;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    i.fab {
+      font-family: "Font Awesome 6 Brands" !important;
+      font-weight: 400 !important;
+    }
+
+    /* Prevent broken box fallback and fix touch targets */
+    i[class*="fa-"] {
+      pointer-events: none;
+    }
+    
+    i[class*="fa-"]::before {
+      display: inline-block;
+      font-style: normal;
+      font-variant: normal;
+      text-rendering: auto;
+      line-height: 1;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .app {
+      width: 100%;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+    }
+
+    .sidebar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 28px 20px;
+      border-right: 1px solid rgba(229, 231, 235, 0.5);
+      overflow-y: auto;
+      position: fixed;
+      height: 100vh;
+      width: 280px;
+      box-shadow: var(--shadow-sm);
+      z-index: 10;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .nav-item {
+      display: block;
+      padding: 12px 12px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-weight: 500;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-weight: 600;
+    }
+
+    .main {
+      grid-column: 2;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .topbar h1 {
+      font-size: 32px;
+      font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: var(--shadow-sm);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      background: #f9fafb;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      color: var(--text-primary);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    input::placeholder,
+    select {
+      color: #64748b;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      color: var(--text-primary);
+    }
+
+    button.btn {
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      width: 100%;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    button.btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    button.btn.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      box-shadow: none;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    button.btn.secondary:hover {
+      background: rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .muted {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-top: 8px;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    .status {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .big-controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .action {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(240, 147, 251, 0.1) 100%);
+      border: 2px solid rgba(102, 126, 234, 0.3);
+      padding: 14px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      flex: 1;
+      min-width: 140px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .action:hover {
+      border-color: var(--accent);
+      background: rgba(102, 126, 234, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .action.danger {
+      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .action.danger:hover {
+      border-color: var(--danger);
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .action.success {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .action.success:hover {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    .devices-grid {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .device-card {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid #e5e7eb;
+      transition: all 0.3s ease;
+    }
+
+    .device-card:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-4px);
+      border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .device-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .device-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-primary);
+    }
+
+    .device-meta {
+      color: var(--text-secondary);
+      font-size: 12px;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
     .badge {
-      display: inline-block; padding: 3px 10px; border-radius: 12px;
-      font-size: 0.78rem; font-weight: 600;
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      color: white;
     }
-    .badge-locked { background: #fdecea; color: #e74c3c; }
-    .badge-unlocked { background: #e8f5e9; color: #27ae60; }
-    .badge-offline { background: #f5f5f5; color: #999; }
-    .badge-online { background: #e3f2fd; color: #1976d2; }
-    .badge-info { background: #e3f2fd; color: #1976d2; }
-    .badge-warning { background: #fff8e1; color: #f57c00; }
-    .badge-critical { background: #fdecea; color: #e74c3c; }
-    .action-row { display: flex; gap: 12px; margin-bottom: 20px; }
-    .btn {
-      padding: 9px 18px; border: none; border-radius: 8px;
-      font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+
+    .badge.locked {
+      background: #ef4444;
     }
-    .btn-primary { background: #0f3460; color: #fff; }
-    .btn-primary:hover { background: #16213e; }
-    .btn-danger { background: #e74c3c; color: #fff; }
-    .btn-danger:hover { background: #c0392b; }
-    .btn-success { background: #27ae60; color: #fff; }
-    .btn-success:hover { background: #219a52; }
-    .loading { text-align: center; padding: 30px; color: #999; }
-    .empty { text-align: center; padding: 20px; color: #bbb; font-style: italic; }
+
+    .badge.unlocked {
+      background: #10b981;
+    }
+
+    .badge.online {
+      background: #06b6d4;
+    }
+
+    .badge.offline {
+      background: #9ca3af;
+    }
+
+    .device-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .small {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      flex: 1;
+    }
+
+    .small.primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .small.primary:hover {
+      background: #764ba2;
+      transform: translateY(-1px);
+    }
+
+    .small.secondary {
+      background: #f3f4f6;
+      color: #0f172a;
+      border: 1px solid #e5e7eb;
+    }
+
+    .small.secondary:hover {
+      background: #e5e7eb;
+      border-color: #d1d5db;
+    }
+
+    /* modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+    }
+
+    .modal {
+      background: var(--card);
+      padding: 28px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal h3 {
+      margin: 0 0 16px 0;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-primary);
+    }
+
+    .row {
+      margin-top: 14px;
+    }
+
+    .row label {
+      display: block;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      justify-content: flex-end;
+    }
+
+    .modal-actions button {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .modal-actions .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .modal-actions .btn-secondary {
+      background: #f3f4f6;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 14px 20px;
+      border-radius: 10px;
+      display: none;
+      box-shadow: var(--shadow);
+      font-weight: 700;
+      animation: slideInRight 0.3s ease-out;
+      z-index: 999;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .list {
+      margin-top: 12px;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    .log-item {
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .users-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    .users-table td,
+    .users-table th {
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .users-table th {
+      background: #f9fafb;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .users-table tr:hover {
+      background: #f9fafb;
+    }
+
+    .users-table td {
+      color: #334155;
+      font-weight: 500;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: white;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .main {
+        grid-column: 1;
+        padding: 24px;
+      }
+
+      .topbar h1 {
+        font-size: 24px;
+      }
+
+      .devices-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .main {
+        padding: 16px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .topbar h1 {
+        font-size: 20px;
+      }
+
+      .devices-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal {
+        width: 95%;
+      }
+    }
   </style>
 </head>
 <body>
-<nav>
-  <a class="brand" href="/index.html">🔒 SmartLock</a>
-  <div class="links">
-    <a href="/index.html" class="active">Dashboard</a>
-    <a href="/devices.html">Devices</a>
-    <a href="/notifications.html">Notifications</a>
-    <a href="/logs.html">Logs</a>
-    <a href="/schedules.html">Schedules</a>
-    <a href="/users.html" id="usersLink" style="display:none">Users</a>
-  </div>
-  <div style="display:flex;align-items:center">
-    <span class="user" id="userDisplay"></span>
-    <button class="logout" id="logoutBtn">Logout</button>
-  </div>
-</nav>
-<div class="container">
-  <h2>Dashboard</h2>
-  <div class="stats-grid" id="statsGrid">
-    <div class="stat-card"><div class="icon">🔒</div><div class="value" id="statLocked">—</div><div class="label">Locked</div></div>
-    <div class="stat-card"><div class="icon">🔓</div><div class="value" id="statUnlocked">—</div><div class="label">Unlocked</div></div>
-    <div class="stat-card"><div class="icon">📡</div><div class="value" id="statOffline">—</div><div class="label">Offline</div></div>
-    <div class="stat-card"><div class="icon">🔔</div><div class="value" id="statNotifs">—</div><div class="label">Notifications</div></div>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="logo"><i class="fas fa-lock"></i> SmartLock Pro</div>
+
+    <div class="section" id="profileSection" style="display:none;">
+      <div class="section-title">Profile</div>
+      <div style="font-weight:700; color:#0f172a;">Welcome, <span id="who">Admin</span></div>
+      <div class="muted" id="userRole">Admin Dashboard</div>
+      <div class="section-title" style="margin-top:18px;">Security</div>
+      <div class="muted" id="mfaStatus">2FA: Unknown</div>
+      <div style="margin-top:8px;">
+        <button class="btn secondary" style="width:100%; margin-top:0;" onclick="startMfaSetup()">Enable 2FA</button>
+        <button class="btn secondary" style="width:100%; margin-top:8px;" onclick="disableMfa()">Disable 2FA</button>
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn" style="background:#ef4444; width:100%; margin-top:0;" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Sign out</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Navigation</div>
+      <div class="list">
+        <a class="nav-item active" id="nav-dashboard" href="javascript:void(0)" onclick="showSection('dashboard')"><i class="fas fa-gauge-high"></i> Dashboard</a>
+        <a class="nav-item" id="nav-devices" href="javascript:void(0)" onclick="showSection('devices')"><i class="fas fa-door-closed"></i> Devices</a>
+        <a class="nav-item" id="nav-users" href="javascript:void(0)" onclick="showSection('users')"><i class="fas fa-users"></i> Users</a>
+        <a class="nav-item" id="nav-notifications" href="javascript:void(0)" onclick="showSection('notifications')"><i class="fas fa-bell"></i> Notifications</a>
+        <a class="nav-item" id="nav-logs" href="javascript:void(0)" onclick="showSection('logs')"><i class="fas fa-history"></i> Activity Logs</a>
+        <a class="nav-item" id="nav-schedules" href="javascript:void(0)" onclick="showSection('schedules')"><i class="fas fa-calendar-days"></i> Schedules</a>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Quick Actions</div>
+      <button class="btn secondary" style="margin-top:0;" onclick="openAddDeviceForm()"><i class="fas fa-plus"></i> Add Device</button>
+      <button class="btn secondary" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border-color:#ef4444; margin-top:8px;" onclick="confirmLockAll()"><i class="fas fa-lock"></i> Lock All</button>
+      <button class="btn secondary" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:#10b981; margin-top:8px;" onclick="confirmUnlockAll()"><i class="fas fa-unlock"></i> Unlock All</button>
+    </div>
   </div>
 
-  <div class="action-row">
-    <button class="btn btn-danger" id="lockAllBtn">🔒 Lock All</button>
-    <button class="btn btn-success" id="unlockAllBtn">🔓 Unlock All</button>
-  </div>
+  <div class="main">
+    <div class="topbar">
+      <h1 id="pageTitle"><i class="fas fa-home"></i> Dashboard</h1>
+      <div class="controls">
+        <div class="chip" id="apiStatus">API: connecting...</div>
+        <div class="chip" id="deviceCount">0 Devices</div>
+      </div>
+    </div>
+    
+    <!-- dashboard section -->
+    <div id="section-dashboard">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Unlocked</div>
+          <div style="font-size:32px; font-weight:700; color:var(--success); margin-top:8px;" id="statUnlocked">0</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">devices ready</div>
+        </div>
+        <div class="stat-card">
+          <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Locked</div>
+          <div style="font-size:32px; font-weight:700; color:var(--danger); margin-top:8px;" id="statLocked">0</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">devices secured</div>
+        </div>
+        <div class="stat-card">
+          <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Online</div>
+          <div style="font-size:32px; font-weight:700; color:var(--info); margin-top:8px;" id="statOnline">0</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">devices connected</div>
+        </div>
+        <div class="stat-card">
+          <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Offline</div>
+          <div style="font-size:32px; font-weight:700; color:#9ca3af; margin-top:8px;" id="statOffline">0</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">devices inactive</div>
+        </div>
+      </div>
 
-  <div class="section">
-    <h3>Recent Devices</h3>
-    <div id="devicesList" class="loading">Loading…</div>
-  </div>
+      <div class="big-controls">
+        <div class="action success" onclick="unlockAll()"><i class="fas fa-unlock"></i> Unlock All</div>
+        <div class="action danger" onclick="lockAll()"><i class="fas fa-lock"></i> Lock All</div>
+        <div class="action" onclick="showSection('devices')"><i class="fas fa-cog"></i> Manage Devices</div>
+      </div>
 
-  <div class="section">
-    <h3>Recent Notifications</h3>
-    <div id="notifsList" class="loading">Loading…</div>
+      <div class="stat-card" style="margin-top:24px; padding:20px; background:rgba(255,255,255,0.95); border:1px solid rgba(229,231,235,0.8);">
+        <div style="font-size:16px; font-weight:700; margin-bottom:12px;"><i class="fas fa-shield-alt"></i> Security Settings</div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="small primary" style="min-width:140px;" onclick="startMfaSetup()"><i class="fas fa-shield-alt"></i> Enable 2FA</button>
+          <button class="small secondary" style="min-width:140px;" onclick="disableMfa()"><i class="fas fa-shield"></i> Disable 2FA</button>
+          <button class="small secondary" style="min-width:140px;" onclick="generateBackupCodes()"><i class="fas fa-key"></i> Backup Codes</button>
+        </div>
+        <div class="muted" style="margin-top:12px;">2FA Status: <strong id="dashboardMfaStatus">unknown</strong></div>
+      </div>
+
+      <div class="status" id="status" style="background:rgba(16,185,129,0.1); padding:12px 16px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:24px;"><i class="fas fa-circle-check"></i> Ready to control devices</div>
+      
+      <div id="devicesArea">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+          <div style="font-weight:700; font-size:18px;"><i class="fas fa-door-closed"></i> Connected Devices</div>
+          <input id="deviceSearch" type="text" placeholder="Search devices..." style="width:250px; max-width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; font-size:13px;" onkeyup="filterDevices()" />
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="setFilter('all')">All</button>
+          <button class="filter-btn" onclick="setFilter('online')">Online</button>
+          <button class="filter-btn" onclick="setFilter('offline')">Offline</button>
+          <button class="filter-btn" onclick="setFilter('locked')">Locked</button>
+          <button class="filter-btn" onclick="setFilter('unlocked')">Unlocked</button>
+        </div>
+        <div class="devices-grid" id="deviceList"></div>
+
+        <div class="device-card" style="margin-top:18px;">
+          <div class="device-header">
+            <div>
+              <div class="device-title"><i class="fas fa-microchip"></i> Direct ESP Control</div>
+              <div class="device-meta">Enter the ESP IP and press Lock / Unlock</div>
+            </div>
+            <div id="espBadge" class="badge offline">No device</div>
+          </div>
+          <div style="display:flex; gap:12px; align-items:center; margin-top:12px; flex-wrap:wrap;">
+            <input id="espIp" type="text" placeholder="ESP IP address (e.g., 192.168.1.100)" style="flex:1; min-width:200px; padding:10px; border-radius:8px; border:1px solid #e5e7eb;" />
+            <button id="btnLock" class="small primary"><i class="fas fa-lock"></i> Lock</button>
+            <button id="btnUnlock" class="small secondary"><i class="fas fa-unlock"></i> Unlock</button>
+          </div>
+          <div class="esp-status" id="espStatus" style="margin-top:10px; font-size:13px; color:var(--text-secondary);">Status: idle</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- devices section -->
+    <div id="section-devices" style="display:none;">
+      <div style="font-weight:700; font-size:24px; margin-bottom:24px;"><i class="fas fa-door-closed"></i> Devices Management</div>
+      <div style="margin-bottom:20px;"><button class="btn" style="max-width:200px; margin-top:0;" onclick="openAddDeviceForm()"><i class="fas fa-plus"></i> Add New Device</button></div>
+      <div class="devices-grid" id="deviceListDevices"></div>
+    </div>
+
+    <!-- users section -->
+    <div id="section-users" style="display:none;">
+      <div style="font-weight:700; font-size:24px; margin-bottom:24px;"><i class="fas fa-users"></i> Users Management</div>
+      <div style="margin-bottom:20px;">
+        <button class="btn" style="max-width:200px; margin-top:0;" onclick="openUserForm()"><i class="fas fa-plus"></i> Add New User</button>
+      </div>
+      <table class="users-table" id="usersTable"><thead><tr><th>Username</th><th>Role</th><th>Actions</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <!-- notifications section -->
+    <div id="section-notifications" style="display:none;">
+      <div style="font-weight:700; font-size:24px; margin-bottom:24px;"><i class="fas fa-bell"></i> Notifications</div>
+      <div style="background:var(--card); padding:20px; border-radius:12px; margin-bottom:24px; border:1px solid #e5e7eb;">
+        <div class="row">
+          <label>Message</label>
+          <input id="notifMessage" placeholder="Enter notification message" />
+        </div>
+        <div class="row">
+          <label>Level</label>
+          <select id="notifLevel"><option value="info">Info</option><option value="warning">Warning</option><option value="critical">Critical</option></select>
+        </div>
+        <button class="btn" style="max-width:200px;" onclick="sendNotification()">Send Notification</button>
+      </div>
+      <div style="font-weight:700; margin-bottom:12px;">Recent Notifications</div>
+      <div class="list" id="notificationsList"></div>
+    </div>
+
+    <!-- logs section -->
+    <div id="section-logs" style="display:none;">
+      <div style="font-weight:700; font-size:24px; margin-bottom:24px;"><i class="fas fa-history"></i> Activity Logs</div>
+      <div class="list" id="logsList"></div>
+    </div>
+
+    <!-- schedules section -->
+    <div id="section-schedules" style="display:none;">
+      <div style="font-weight:700; font-size:24px; margin-bottom:24px;"><i class="fas fa-calendar-days"></i> Schedules</div>
+      <div style="margin-bottom:20px;">
+        <button class="btn" style="max-width:200px; margin-top:0;" onclick="openScheduleForm()"><i class="fas fa-plus"></i> Add Schedule</button>
+      </div>
+      <div class="list" id="schedulesList"></div>
+    </div>
   </div>
 </div>
+
+<!-- modal for device/user/schedule -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="modalTitle">Add Device</h3>
+    <div id="modalBody">
+      <!-- dynamic form fields -->
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="modalSave()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- MFA setup modal -->
+<div class="modal-backdrop" id="mfaModal" style="display:none;">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3>Enable 2FA</h3>
+    <div class="muted" style="margin-bottom:12px;">Scan the QR code in your authenticator app, or enter the secret manually.</div>
+    <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+      <img id="mfaQr" alt="MFA QR" style="width:180px;height:180px;border:1px solid #e5e7eb;border-radius:12px;background:white;" />
+      <div style="flex:1; min-width:180px;">
+        <div style="font-weight:700; margin-bottom:6px;">Secret</div>
+        <div id="mfaSecret" style="padding:10px; border:1px solid #e5e7eb; border-radius:8px; background:#f9fafb; font-family:monospace; word-break:break-all;"></div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:16px;">
+      <label>6-digit code</label>
+      <input id="mfaTokenInput" placeholder="123456" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeMfaModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmMfaEnable()">Enable</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
-  const username = localStorage.getItem('username');
-  if (!token) { window.location.href = '/login.html'; }
+// Check authentication
+if (!localStorage.getItem('sl_token')) {
+  window.location.href = '/login.html';
+}
 
-  document.getElementById('userDisplay').textContent = username ? `👤 ${username}` : '';
-  if (role === 'admin') document.getElementById('usersLink').style.display = 'inline';
+const api = location.origin;
+let authToken = localStorage.getItem('sl_token');
+let modalContext = null;
+let editingId = null;
+let allDevices = [];
+let currentFilter = 'all';
+let ws = null;
 
-  function logout() {
-    localStorage.clear();
-    window.location.href = '/login.html';
+function showToast(msg, timeout=3000){
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.style.display = 'block';
+  setTimeout(()=> t.style.display='none', timeout);
+}
+
+async function updateApiStatus(){
+  const el = document.getElementById('apiStatus');
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    
+    const res = await fetch(api + '/health', { 
+      method: 'GET', 
+      headers: authHeaders(),
+      signal: controller.signal 
+    });
+    clearTimeout(timeoutId);
+
+    el.innerText = 'API: connected';
+    el.style.background = '#ecfdf5';
+  } catch(e){
+    el.innerText = 'API: offline ✗';
+    el.style.background = '#fee2e2';
   }
+}
 
-  function authHeaders() {
-    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+function authHeaders(){
+  return { 
+    'Content-Type':'application/json',
+    'Authorization': 'Bearer ' + authToken
+  };
+}
+
+function logout(){
+  localStorage.removeItem('sl_token');
+  localStorage.removeItem('sl_user');
+  localStorage.removeItem('sl_role');
+  if (ws) ws.close();
+  showToast('Signed out');
+  setTimeout(() => window.location.href = '/login.html', 1000);
+}
+
+function showSection(name){
+  const sections = ['dashboard', 'devices', 'users', 'notifications', 'logs', 'schedules'];
+  sections.forEach(s => {
+    const section = document.getElementById('section-' + s);
+    if (section) section.style.display = s === name ? 'block' : 'none';
+    const nav = document.getElementById('nav-' + s);
+    if (nav) nav.classList.toggle('active', s === name);
+  });
+  
+  const titles = {
+    dashboard: 'Dashboard',
+    devices: 'Devices',
+    users: 'Users',
+    notifications: 'Notifications',
+    logs: 'Activity Logs',
+    schedules: 'Schedules'
+  };
+  document.getElementById('pageTitle').innerHTML = titles[name] || 'SmartLock';
+  
+  // Load content
+  if(name === 'devices') getDevices('devices');
+  if(name === 'users') getUsers();
+  if(name === 'notifications') getNotifications();
+  if(name === 'logs') getLogs();
+  if(name === 'schedules') getSchedules();
+}
+
+async function loadMfaStatus(){
+  try {
+    const username = localStorage.getItem('sl_user');
+    if (!username) return;
+    const res = await fetch(api + '/users/' + encodeURIComponent(username), { method:'GET', headers: authHeaders() });
+    if (!res.ok) return;
+    const u = await res.json();
+    const el = document.getElementById('mfaStatus');
+    if (el) el.innerText = `2FA: ${u.mfa_enabled ? 'Enabled' : 'Disabled'}`;
+    const dashboardEl = document.getElementById('dashboardMfaStatus');
+    if (dashboardEl) dashboardEl.innerText = u.mfa_enabled ? 'Enabled' : 'Disabled';
+  } catch(e) { /* ignore */ }
+}
+
+let pendingMfaSecret = null;
+async function startMfaSetup(){
+  try {
+    const res = await fetch(api + '/api/2fa/setup', { method:'POST', headers: authHeaders() });
+    const data = await res.json();
+    if (!data.success) return showToast(data.error || 'MFA setup failed');
+    pendingMfaSecret = data.secret;
+    const qr = document.getElementById('mfaQr');
+    const secretEl = document.getElementById('mfaSecret');
+    if (secretEl) secretEl.innerText = data.secret;
+    if (qr) {
+      qr.src = data.qrDataUrl || ('https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(data.otpauthUrl));
+    }
+    const input = document.getElementById('mfaTokenInput');
+    if (input) input.value = '';
+    document.getElementById('mfaModal').style.display = 'flex';
+  } catch(e) {
+    showToast('MFA setup error');
   }
+}
 
-  function statusBadge(s) {
-    const cls = s === 'locked' ? 'badge-locked' : s === 'unlocked' ? 'badge-unlocked' : 'badge-offline';
-    return `<span class="badge ${cls}">${s ? s.toUpperCase() : 'UNKNOWN'}</span>`;
+function closeMfaModal(){
+  document.getElementById('mfaModal').style.display = 'none';
+}
+
+async function confirmMfaEnable(){
+  const token = document.getElementById('mfaTokenInput').value.trim();
+  if (!token) return showToast('Enter the 6-digit code');
+  try {
+    const verify = await fetch(api + '/api/2fa/enable', { method:'POST', headers: authHeaders(), body: JSON.stringify({ token }) });
+    const v = await verify.json();
+    if (!verify.ok) return showToast(v.error || 'MFA verify failed');
+    showToast('2FA enabled');
+    if (Array.isArray(v.backupCodes)) {
+      showBackupCodes(v.backupCodes);
+    }
+    loadMfaStatus();
+  } catch(e) {
+    showToast('MFA verify error');
   }
+}
 
-  async function loadDashboard() {
+async function generateBackupCodes(){
+  try {
+    const res = await fetch(api + '/api/2fa/backup-codes', { method:'POST', headers: authHeaders() });
+    const data = await res.json();
+    if (!res.ok) return showToast(data.error || 'Failed to create backup codes');
+    showToast('Backup codes generated');
+    if (Array.isArray(data.backupCodes)) {
+      showBackupCodes(data.backupCodes);
+    }
+  } catch(e) {
+    showToast('Backup code generation failed');
+  }
+}
+
+function showBackupCodes(codes) {
+  const wrapper = document.getElementById('backupCodesWrapper');
+  const list = document.getElementById('backupCodesList');
+  if (!wrapper || !list) return;
+  wrapper.style.display = 'block';
+  list.innerHTML = codes.map(code => `<div>${code}</div>`).join('');
+}
+
+async function disableMfa(){
+  const token = prompt('Enter your 6-digit MFA code to disable 2FA:');
+  if (!token) return;
+  try {
+    const res = await fetch(api + '/api/2fa/disable', { method:'POST', headers: authHeaders(), body: JSON.stringify({ token }) });
+    const data = await res.json();
+    if (!res.ok) return showToast(data.error || 'Disable failed');
+    showToast('2FA disabled');
+    loadMfaStatus();
+  } catch(e) {
+    showToast('Disable error');
+  }
+}
+
+async function getDevices(target){
+  try {
+    const res = await fetch(api + '/api/devices', { method:'GET', headers: authHeaders() });
+    if (res.status === 401) { 
+      showToast('Session expired. Please login again.');
+      setTimeout(() => logout(), 2000);
+      return;
+    }
+    const list = await res.json();
+    allDevices = list;
+    if (target) {
+      renderDevices(list, target);
+    } else {
+      renderDevices(list, 'dashboard');
+      renderDevices(list, 'devices');
+    }
+    updateDashboardStats(list);
+    document.getElementById('deviceCount').innerText = list.length + ' Devices';
+  } catch(e){
+    showToast('Failed to load devices');
+  }
+}
+
+function updateDashboardStats(devices) {
+  const stats = {
+    locked: devices.filter(d => d.status === 'locked').length,
+    unlocked: devices.filter(d => d.status === 'unlocked').length,
+    online: devices.filter(d => d.status === 'online').length,
+    offline: devices.filter(d => d.status === 'offline').length
+  };
+  
+  document.getElementById('statLocked').innerText = stats.locked;
+  document.getElementById('statUnlocked').innerText = stats.unlocked;
+  document.getElementById('statOnline').innerText = stats.online;
+  document.getElementById('statOffline').innerText = stats.offline;
+}
+
+function renderDevices(devices, target){
+  const listId = target === 'devices' ? 'deviceListDevices' : 'deviceList';
+  const container = document.getElementById(listId);
+  if (!container) return;
+  
+  container.innerHTML = '';
+  if (!devices.length){
+    container.innerHTML = '<div class="muted" style="padding:20px; text-align:center;">No devices configured. <a onclick="openAddDeviceForm()" style="color:#667eea; cursor:pointer; font-weight:600;">Add one now →</a></div>';
+    return;
+  }
+  
+  devices.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'device-card';
+    card.setAttribute('data-device-name', (d.name || '').toLowerCase());
+    card.setAttribute('data-device-id', (d.deviceId || d.id || '').toLowerCase());
+    card.setAttribute('data-device-status', d.status);
+    
+    const wifiStatus = d.wifiConnected ? 
+      `<div style="font-size:12px; color:#10b981; margin-top:4px;"><i class="fas fa-wifi"></i> ${escapeHtml(d.wifiSSID || 'WiFi')} • ${d.signalStrength || 0}%</div>` : 
+      `<div style="font-size:12px; color:#ef4444; margin-top:4px;"><i class="fas fa-times-circle"></i> WiFi Disconnected</div>`;
+    
+    card.innerHTML = `
+      <div class="device-header">
+        <div>
+          <div class="device-title">${escapeHtml(d.name || 'Unnamed')}</div>
+          <div class="device-meta">${escapeHtml(d.deviceId || d.id || '')}</div>
+        </div>
+        <span class="badge ${d.status}">${(d.status||'unknown').toUpperCase()}</span>
+      </div>
+      <div style="margin-top:12px; padding-top:12px; border-top:1px solid #f1f5f9;">
+        <div style="font-size:12px; color:var(--text-secondary);"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(d.location || 'No location')}</div>
+        ${wifiStatus}
+        ${d.ipAddress ? `<div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">IP: ${d.ipAddress}</div>` : ''}
+      </div>
+      <div class="device-actions">
+        <button class="small primary" onclick="lockDevice('${encodeURIComponent(d.id || d.deviceId)}')"><i class="fas fa-lock"></i> Lock</button>
+        <button class="small primary" style="background:#10b981;" onclick="unlockDevice('${encodeURIComponent(d.id || d.deviceId)}')"><i class="fas fa-unlock"></i> Unlock</button>
+        <button class="small secondary" onclick="openWiFiForm('${encodeURIComponent(d.id || d.deviceId)}')"><i class="fas fa-wifi"></i> WiFi</button>
+      </div>
+      <div class="device-actions">
+        <button class="small secondary" onclick="editDevice('${encodeURIComponent(d.id || d.deviceId)}')"><i class="fas fa-pen-to-square"></i> Edit</button>
+        <button class="small secondary" style="color:#ef4444; border-color:#ef4444;" onclick="deleteDevicePrompt('${encodeURIComponent(d.id || d.deviceId)}')"><i class="fas fa-trash"></i> Delete</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function filterDevices() {
+  const searchTerm = document.getElementById('deviceSearch')?.value.toLowerCase() || '';
+  const cards = document.querySelectorAll('[data-device-name]');
+  
+  cards.forEach(card => {
+    const name = card.getAttribute('data-device-name');
+    const id = card.getAttribute('data-device-id');
+    const status = card.getAttribute('data-device-status');
+    const matchesSearch = name.includes(searchTerm) || id.includes(searchTerm);
+    const matchesFilter = currentFilter === 'all' || status === currentFilter;
+    card.style.display = (matchesSearch && matchesFilter) ? 'block' : 'none';
+  });
+}
+
+function setFilter(filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.innerText.toLowerCase() === filter);
+  });
+  filterDevices();
+}
+
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function openAddDeviceForm(){
+  modalContext='device';
+  editingId=null;
+  document.getElementById('modalTitle').innerText = 'Add Device';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="row"><input id="deviceName" placeholder="Device Name *" /></div>
+    <div class="row"><input id="deviceIp" placeholder="IP Address" /></div>
+    <div class="row"><input id="deviceLocation" placeholder="Location" /></div>
+  `;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function openWiFiForm(encodedId){
+  const id = decodeURIComponent(encodedId);
+  modalContext='wifi';
+  editingId=id;
+  document.getElementById('modalTitle').innerText = 'WiFi Connection';
+  document.getElementById('modalBody').innerHTML=`
+    <div style="margin-bottom:12px;font-weight:700">Connect Device to WiFi Network</div>
+    <div class="row"><input id="wifiSSID" placeholder="WiFi Network Name (SSID)" /></div>
+    <div class="row"><input id="wifiPassword" type="password" placeholder="WiFi Password" /></div>
+    <div style="margin-top:12px;padding:12px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;font-size:13px;">
+      Your device will connect to the selected WiFi network.
+    </div>
+  `;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function openUserForm(edit=null){
+  modalContext='user';
+  editingId=edit||null;
+  document.getElementById('modalTitle').innerText = edit ? 'Edit User' : 'Add User';
+  if(edit){
+    document.getElementById('modalBody').innerHTML=`
+      <div class="row"><input id="userUsername" value="${escapeHtml(edit)}" disabled /></div>
+      <div class="row"><input id="userPassword" placeholder="New password (leave empty to keep)" type="password" /></div>
+      <div class="row"><select id="userRole"><option value="admin">Admin</option><option value="user">User</option></select></div>
+    `;
+  } else {
+    document.getElementById('modalBody').innerHTML=`
+      <div class="row"><input id="userUsername" placeholder="Username" /></div>
+      <div class="row"><input id="userPassword" placeholder="Password" type="password" /></div>
+      <div class="row"><select id="userRole"><option value="admin">Admin</option><option value="user">User</option></select></div>
+    `;
+  }
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function openScheduleForm(edit=null){
+  modalContext='schedule';
+  editingId=edit||null;
+  document.getElementById('modalTitle').innerText = edit ? 'Edit Schedule' : 'Add Schedule';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="row"><input id="schDeviceId" placeholder="Device ID (leave empty for all)" /></div>
+    <div class="row"><select id="schAction"><option value="lock">Lock</option><option value="unlock">Unlock</option></select></div>
+    <div class="row">
+      <select id="schType" onchange="toggleSchFields()">
+        <option value="once">Once / Cron</option>
+        <option value="weekly">Weekly Recurring</option>
+      </select>
+    </div>
+    <div id="schOnceFields" class="row">
+      <input id="schTime" placeholder="Time: 2024-12-31T14:30:00 or cron string" />
+      <div class="muted">Example: 2024-12-31T14:30:00 or cron format (*/5 * * * *)</div>
+    </div>
+    <div id="schWeeklyFields" class="row" style="display:none;">
+      <label>Days of Week</label>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+        ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d,i) => `
+          <label style="font-size:12px; display:flex; align-items:center; gap:4px;">
+            <input type="checkbox" name="schDays" value="${i}"> ${d}
+          </label>
+        `).join('')}
+      </div>
+      <input id="schTimeWeekly" type="time" style="margin-top:12px;" />
+    </div>
+  `;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function toggleSchFields() {
+  const type = document.getElementById('schType').value;
+  document.getElementById('schOnceFields').style.display = type === 'once' ? 'block' : 'none';
+  document.getElementById('schWeeklyFields').style.display = type === 'weekly' ? 'block' : 'none';
+}
+
+function closeModal(){
+  document.getElementById('modal').style.display = 'none';
+  modalContext=null;
+  editingId=null;
+}
+
+async function modalSave(){
+  try {
+    if (modalContext==='device'){
+      const payload = {
+        name: document.getElementById('deviceName').value,
+        ipAddress: document.getElementById('deviceIp').value,
+        location: document.getElementById('deviceLocation').value
+      };
+      if (!payload.name) {
+        showToast('Device name required');
+        return;
+      }
+      if (editingId){
+        await fetch(api + '/api/devices/' + editingId, { method:'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
+        showToast('Device updated');
+      } else {
+        await fetch(api + '/api/devices', { method:'POST', headers: authHeaders(), body: JSON.stringify(payload) });
+        showToast('Device added');
+      }
+      await getDevices();
+      closeModal();
+    }
+    if (modalContext==='user'){
+      const username = document.getElementById('userUsername').value;
+      const pwd = document.getElementById('userPassword').value;
+      const role = document.getElementById('userRole').value;
+      if (!username) {
+        showToast('Username required');
+        return;
+      }
+      if (editingId){
+        const payload = { role };
+        if (pwd) payload.password = pwd;
+        await fetch(api + '/users/' + encodeURIComponent(username), { method:'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
+        showToast('User updated');
+      } else {
+        if (!pwd) {
+          showToast('Password required');
+          return;
+        }
+        await fetch(api + '/users', { method:'POST', headers: authHeaders(), body: JSON.stringify({ username, password: pwd, role }) });
+        showToast('User added');
+      }
+      await getUsers();
+      closeModal();
+    }
+    if (modalContext==='schedule'){
+      const deviceId = document.getElementById('schDeviceId').value || null;
+      const action = document.getElementById('schAction').value;
+      const type = document.getElementById('schType').value;
+      let payload = { deviceId, action };
+
+      if (type === 'weekly') {
+        const days = Array.from(document.querySelectorAll('input[name="schDays"]:checked')).map(cb => parseInt(cb.value));
+        const timeVal = document.getElementById('schTimeWeekly').value;
+        if (!days.length || !timeVal) return showToast('Days and Time required');
+        const [h, m] = timeVal.split(':');
+        payload.daysOfWeek = days;
+        payload.hour = parseInt(h);
+        payload.minute = parseInt(m);
+      } else {
+        payload.time = document.getElementById('schTime').value;
+        if (!payload.time) return showToast('Time required');
+      }
+
+      await fetch(api + '/schedules', { method:'POST', headers: authHeaders(), body: JSON.stringify(payload) });
+      showToast('Schedule added');
+      await getSchedules();
+      closeModal();
+    }
+    if (modalContext==='wifi'){
+      const wifiSSID = document.getElementById('wifiSSID').value;
+      const wifiPassword = document.getElementById('wifiPassword').value;
+      if (!wifiSSID) {
+        showToast('WiFi SSID required');
+        return;
+      }
+      if (!wifiPassword) {
+        showToast('WiFi password required');
+        return;
+      }
+      const res = await fetch(api + '/devices/' + editingId + '/wifi/connect', { 
+        method:'POST', 
+        headers: authHeaders(), 
+        body: JSON.stringify({ wifiSSID, wifiPassword }) 
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        showToast('WiFi connection failed: ' + err.error);
+        return;
+      }
+      showToast('Device connected to WiFi!');
+      await getDevices();
+      closeModal();
+    }
+  } catch(e){
+    showToast('Save failed: ' + e.message);
+  }
+}
+
+// User management
+async function getUsers(){
+  try {
+    const res = await fetch(api + '/users', { method:'GET', headers: authHeaders() });
+    if (res.status === 401) return;
+    const list = await res.json();
+    const tbody = document.querySelector('#usersTable tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    list.forEach(u=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${escapeHtml(u.username)}</td>
+        <td>${escapeHtml(u.role||'user')}</td>
+        <td><button class="small secondary" onclick="openUserForm('${escapeHtml(u.username)}')">Edit</button> <button class="small secondary" style="color:#ef4444;" onclick="deleteUser('${encodeURIComponent(u.username)}')">Delete</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch(e){
+    showToast('Failed to load users');
+  }
+}
+
+async function deleteUser(encoded){
+  if (!confirm('Delete user?')) return;
+  const u = decodeURIComponent(encoded);
+  await fetch(api + '/users/' + u, { method:'DELETE', headers: authHeaders() });
+  showToast('User deleted');
+  getUsers();
+}
+
+// Notifications
+async function getNotifications(){
+  try {
+    const res = await fetch(api + '/notifications', { method:'GET', headers: authHeaders() });
+    const list = await res.json();
+    const el = document.getElementById('notificationsList');
+    if (!el) return;
+    el.innerHTML = '';
+    list.slice(0, 50).forEach(n=>{
+      const div = document.createElement('div');
+      div.className = 'log-item';
+      div.innerHTML = `
+        <div><strong>${escapeHtml(n.level||'info')}</strong> <span style="color:var(--text-secondary);">• ${new Date(n.timestamp).toLocaleString()}</span></div>
+        <div class="muted">${escapeHtml(n.message)}</div>
+        <button class="small secondary" style="margin-top:6px;" onclick="deleteNotification('${encodeURIComponent(n.id)}')">Delete</button>
+      `;
+      el.appendChild(div);
+    });
+  } catch(e){
+    showToast('Failed to load notifications');
+  }
+}
+
+async function sendNotification(){
+  const msg = document.getElementById('notifMessage').value;
+  const level = document.getElementById('notifLevel').value;
+  if (!msg) {
+    showToast('Message required');
+    return;
+  }
+  await fetch(api + '/notifications', { method:'POST', headers: authHeaders(), body: JSON.stringify({ message: msg, level }) });
+  showToast('Notification sent');
+  document.getElementById('notifMessage').value = '';
+  getNotifications();
+}
+
+async function deleteNotification(idEnc){
+  const id = decodeURIComponent(idEnc);
+  await fetch(api + '/notifications/' + id, { method:'DELETE', headers: authHeaders() });
+  getNotifications();
+}
+
+// Logs
+async function getLogs(){
+  try {
+    const res = await fetch(api + '/logs', { method:'GET', headers: authHeaders() });
+    const list = await res.json();
+    const el = document.getElementById('logsList');
+    if (!el) return;
+    el.innerHTML = '';
+    list.slice(0, 100).forEach(l=>{
+      const d = document.createElement('div');
+      d.className = 'log-item';
+      const who = l.user || l.userId || 'system';
+      d.innerText = `${new Date(l.timestamp).toLocaleString()} • ${who} • ${l.action} ${l.deviceId ? '• '+l.deviceId : ''}`;
+      el.appendChild(d);
+    });
+  } catch(e){
+    showToast('Failed to load logs');
+  }
+}
+
+// Schedules
+async function getSchedules(){
+  try {
+    const res = await fetch(api + '/schedules', { method:'GET', headers: authHeaders() });
+    const list = await res.json();
+    const el = document.getElementById('schedulesList');
+    if (!el) return;
+    el.innerHTML = '';
+    list.forEach(s=>{
+      const days = Array.isArray(s.daysOfWeek) ? s.daysOfWeek : [];
+      const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const weekly = days.length ? `${days.map(d => dayNames[d] || d).join(', ')} @ ${String(s.hour||0).padStart(2,'0')}:${String(s.minute||0).padStart(2,'0')}` : null;
+      const div = document.createElement('div');
+      div.className = 'log-item';
+      div.innerHTML = `
+        <div><strong>${escapeHtml(s.action)}</strong> for ${escapeHtml(s.deviceId || 'all devices')}</div>
+        <div class="muted">Time: ${escapeHtml(weekly || s.time || 'N/A')}</div>
+        <button class="small secondary" style="margin-top:6px;" onclick="deleteSchedule('${encodeURIComponent(s.id)}')">Delete</button>
+      `;
+      el.appendChild(div);
+    });
+  } catch(e){
+    showToast('Failed to load schedules');
+  }
+}
+
+async function deleteSchedule(idEnc){
+  if (!confirm('Delete schedule?')) return;
+  const id = decodeURIComponent(idEnc);
+  await fetch(api + '/schedules/' + id, { method:'DELETE', headers: authHeaders() });
+  showToast('Schedule removed');
+  getSchedules();
+}
+
+// Device actions
+async function lockAll(){
+  try {
+    const res = await fetch(api + '/lock', { method:'POST', headers: authHeaders() });
+    const data = await res.json();
+    document.getElementById('status').innerHTML = 'All devices: ' + data.status;
+    await getDevices();
+    showToast('Locked all devices');
+  } catch(e){ showToast('Failed to lock all'); }
+}
+
+async function unlockAll(){
+  try {
+    const res = await fetch(api + '/unlock', { method:'POST', headers: authHeaders() });
+    const data = await res.json();
+    document.getElementById('status').innerHTML = 'All devices: ' + data.status;
+    await getDevices();
+    showToast('Unlocked all devices');
+  } catch(e){ showToast('Failed to unlock all'); }
+}
+
+async function lockDevice(encodedId){
+  const id = decodeURIComponent(encodedId);
+  try {
+    const res = await fetch(api + '/api/devices/' + id + '/lock', { method:'POST', headers: authHeaders() });
+    if (!res.ok) throw new Error('Failed');
+    showToast('Device locked successfully');
+    await getDevices();
+  } catch(e){ showToast('Failed to lock device'); }
+}
+
+async function unlockDevice(encodedId){
+  const id = decodeURIComponent(encodedId);
+  try {
+    const res = await fetch(api + '/api/devices/' + id + '/unlock', { method:'POST', headers: authHeaders() });
+    if (!res.ok) throw new Error('Failed');
+    showToast('Device unlocked successfully');
+    await getDevices();
+  } catch(e){ showToast('Failed to unlock device'); }
+}
+
+async function editDevice(encodedId){
+  const id = decodeURIComponent(encodedId);
+  try {
+    const res = await fetch(api + '/api/devices/' + id, { method:'GET', headers: authHeaders() });
+    const d = await res.json();
+    modalContext='device';
+    editingId=id;
+    document.getElementById('modalTitle').innerText = 'Edit Device';
+    document.getElementById('modalBody').innerHTML=`
+      <div class="row"><input id="deviceName" value="${escapeHtml(d.name||'')}" placeholder="Device Name *" /></div>
+      <div class="row"><input id="deviceIp" value="${escapeHtml(d.ipAddress||d.ip_address||'')}" placeholder="IP Address" /></div>
+      <div class="row"><input id="deviceLocation" value="${escapeHtml(d.location||'')}" placeholder="Location" /></div>
+    `;
+    document.getElementById('modal').style.display = 'flex';
+  } catch(e){ showToast('Failed to load device'); }
+}
+
+function deleteDevicePrompt(encodedId){
+  if (!confirm('Delete device?')) return;
+  deleteDevice(encodedId);
+}
+
+async function deleteDevice(encodedId){
+  const id = decodeURIComponent(encodedId);
+  await fetch(api + '/api/devices/' + id, { method:'DELETE', headers: authHeaders() });
+  showToast('Device removed');
+  getDevices();
+}
+
+function confirmLockAll(){ if(confirm('Lock all devices?')) lockAll(); }
+function confirmUnlockAll(){ if(confirm('Unlock all devices?')) unlockAll(); }
+
+// WebSocket connection
+function connectWebSocket() {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${window.location.host}?token=${authToken}`);
+  
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === 'device_update') {
+      getDevices();
+    }
+  };
+  
+  ws.onclose = () => {
+    setTimeout(connectWebSocket, 5000);
+  };
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', async function() {
+  const username = localStorage.getItem('sl_user') || 'User';
+  const role = localStorage.getItem('sl_role') || 'user';
+  document.getElementById('who').innerText = username;
+  document.getElementById('userRole').innerText = role === 'admin' ? 'Administrator' : 'User';
+  document.getElementById('profileSection').style.display = 'block';
+  await loadMfaStatus();
+  
+  await updateApiStatus();
+  await getDevices('dashboard');
+  
+  // Auto-refresh
+  setInterval(async () => {
+    await updateApiStatus();
+    await getDevices('dashboard');
+  }, 30000);
+  
+  // Connect WebSocket
+  connectWebSocket();
+  
+  // ESP control
+  const btnLock = document.getElementById('btnLock');
+  const btnUnlock = document.getElementById('btnUnlock');
+  const espIpInput = document.getElementById('espIp');
+  const espStatus = document.getElementById('espStatus');
+  const espBadge = document.getElementById('espBadge');
+  
+  async function sendToEsp(ip, action) {
+    if (!ip) {
+      showToast('Please enter ESP IP address');
+      return false;
+    }
+    
+    espStatus.innerText = 'Status: sending...';
     try {
-      const [devRes, notifRes] = await Promise.all([
-        fetch('/api/devices', { headers: authHeaders() }),
-        fetch('/notifications', { headers: authHeaders() })
-      ]);
-      if (devRes.status === 401 || notifRes.status === 401) { logout(); return; }
-      const devices = await devRes.json();
-      const notifs = await notifRes.json();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-      document.getElementById('statLocked').textContent = devices.filter(d => d.status === 'locked').length;
-      document.getElementById('statUnlocked').textContent = devices.filter(d => d.status === 'unlocked').length;
-      document.getElementById('statOffline').textContent = devices.filter(d => d.status === 'offline').length;
-      document.getElementById('statNotifs').textContent = notifs.length;
+      const res = await fetch(api + '/proxy/' + action, { 
+        method: 'POST', 
+        headers: authHeaders(), 
+        body: JSON.stringify({ ip }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
 
-      if (devices.length === 0) {
-        document.getElementById('devicesList').innerHTML = '<div class="empty">No devices found.</div>';
+      if (res.ok) {
+        espStatus.innerText = 'Status: command sent';
+        espBadge.innerText = 'Sent';
+        espBadge.className = 'badge online';
+        return true;
       } else {
-        let rows = '<table><thead><tr><th>Name</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-        devices.slice(0, 5).forEach(d => {
-          const devId = d.id.replace(/[^a-zA-Z0-9-_]/g, '');
-          rows += `<tr>
-            <td><strong>${escText(d.name)}</strong></td>
-            <td>${escText(d.location || '—')}</td>
-            <td>${statusBadge(d.status)}</td>
-            <td>
-              <button class="btn btn-danger" style="padding:4px 10px;font-size:0.8rem" data-action="lock" data-id="${devId}">Lock</button>
-              <button class="btn btn-success" style="padding:4px 10px;font-size:0.8rem;margin-left:6px" data-action="unlock" data-id="${devId}">Unlock</button>
-            </td>
-          </tr>`;
-        });
-        rows += '</tbody></table>';
-        document.getElementById('devicesList').innerHTML = rows;
+        const err = await res.json().catch(() => ({}));
+        espStatus.innerText = 'Status: failed (' + (err.error || 'unknown') + ')';
+        return false;
       }
-
-      if (notifs.length === 0) {
-        document.getElementById('notifsList').innerHTML = '<div class="empty">No notifications.</div>';
-      } else {
-        let rows = '<table><thead><tr><th>Time</th><th>Level</th><th>Message</th></tr></thead><tbody>';
-        notifs.slice(0, 5).forEach(n => {
-          const cls = n.level === 'warning' ? 'badge-warning' : n.level === 'critical' ? 'badge-critical' : 'badge-info';
-          rows += `<tr>
-            <td>${new Date(n.timestamp).toLocaleString()}</td>
-            <td><span class="badge ${cls}">${escText(n.level.toUpperCase())}</span></td>
-            <td>${escText(n.message)}</td>
-          </tr>`;
-        });
-        rows += '</tbody></table>';
-        document.getElementById('notifsList').innerHTML = rows;
-      }
-    } catch (e) {
-      document.getElementById('devicesList').innerHTML = '<div class="empty">Failed to load devices.</div>';
+    } catch(e){
+      espStatus.innerText = 'Status: request error / timeout';
+      return false;
     }
   }
+  
+  if (btnLock) btnLock.onclick = async () => {
+    const ip = espIpInput.value.trim();
+    if (await sendToEsp(ip, 'lock')) showToast('Lock command sent');
+  };
+  if (btnUnlock) btnUnlock.onclick = async () => {
+    const ip = espIpInput.value.trim();
+    if (await sendToEsp(ip, 'unlock')) showToast('Unlock command sent');
+  };
+});
 
-  async function quickLock(id) {
-    await fetch(`/devices/${id}/lock`, { method: 'POST', headers: authHeaders() });
-    loadDashboard();
-  }
+// Modal close on backdrop click
+document.getElementById('modal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.getElementById('mfaModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeMfaModal();
+});
 
-  async function quickUnlock(id) {
-    await fetch(`/devices/${id}/unlock`, { method: 'POST', headers: authHeaders() });
-    loadDashboard();
-  }
-
-  async function bulkLock() {
-    await fetch('/lock', { method: 'POST', headers: authHeaders() });
-    loadDashboard();
-  }
-
-  async function bulkUnlock() {
-    await fetch('/unlock', { method: 'POST', headers: authHeaders() });
-    loadDashboard();
-  }
-
-  function escText(s) {
-    const div = document.createElement('div');
-    div.textContent = String(s);
-    return div.innerHTML;
-  }
-
-  document.getElementById('logoutBtn').addEventListener('click', logout);
-  document.getElementById('lockAllBtn').addEventListener('click', bulkLock);
-  document.getElementById('unlockAllBtn').addEventListener('click', bulkUnlock);
-
-  document.getElementById('devicesList').addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-action][data-id]');
-    if (!btn) return;
-    const { action, id } = btn.dataset;
-    if (action === 'lock') quickLock(id);
-    else if (action === 'unlock') quickUnlock(id);
-  });
-
-  loadDashboard();
+// Escape key closes modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
 </script>
+
+<script>
+// Icon load checker - runs after page loads
+window.addEventListener('load', function() {
+  // Test if Font Awesome loaded correctly
+  const testIcon = document.createElement('i');
+  testIcon.className = 'fas fa-check';
+  testIcon.style.position = 'absolute';
+  testIcon.style.opacity = '0';
+  document.body.appendChild(testIcon);
+  
+  const computed = window.getComputedStyle(testIcon, '::before');
+  const content = computed.getPropertyValue('content');
+  
+  if (!content || content === 'none' || content === '') {
+    // FA not loaded — inject backup CDN
+    const backup = document.createElement('link');
+    backup.rel = 'stylesheet';
+    backup.href = 'https://use.fontawesome.com/releases/v6.7.2/css/all.css';
+    document.head.appendChild(backup);
+    console.warn('Font Awesome CDN failed — backup loaded');
+  }
+  document.body.removeChild(testIcon);
+});
+</script>
+
 </body>
 </html>

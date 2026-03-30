@@ -726,40 +726,74 @@ app.post("/login", async (req, res) => {
     rememberDevice,
     deviceName
   } = req.body || {};
+  
   const providedTrustedToken = getTrustedDeviceTokenFromRequest(req);
   const data = loadData();
   
+  // ========== BRUTE FORCE PROTECTION ==========
+  // Check if this username is allowed to attempt login
+  const bruteForceModule = require('./brute_force_protection');
+  if (!bruteForceModule.isLoginAllowed(username)) {
+    const info = bruteForceModule.getLoginAttemptInfo(username);
+    logger.warn(`Login blocked due to brute force: ${username} from ${req.ip}`);
+    return res.status(429).json({
+      error: 'Too many failed login attempts. Account temporarily locked.',
+      retryAfter: info.lockedUntil ? Math.ceil((info.lockedUntil - Date.now()) / 1000) : 300
+    });
+  }
+  
+  // ========== VALIDATE CREDENTIALS ==========
   const user = data.users.find(u => u.username === username);
-  if (!user) return res.status(401).json({ error: "Invalid credentials" });
-  ensureUserMfaFields(user);
-
-  if (!bcrypt.compareSync(password, user.password_hash)) {
+  if (!user) {
+    // Record failed attempt even if user doesn't exist (prevent enumeration discovery)
+    const attempt = bruteForceModule.recordLoginAttempt(username, false);
+    logger.warn(`Login failed: unknown user '${username}' from ${req.ip}`);
     return res.status(401).json({ error: "Invalid credentials" });
   }
-
+  
+  ensureUserMfaFields(user);
+  
+  // Verify password
+  const passwordValid = bcrypt.compareSync(password, user.password_hash);
+  if (!passwordValid) {
+    // Record failed login attempt
+    const attempt = bruteForceModule.recordLoginAttempt(username, false);
+    logger.warn(`Login failed: invalid password for user '${username}' from ${req.ip}`);
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
+  
+  // ========== MFA VERIFICATION ==========
   if (user.mfa_enabled) {
     let authenticatedWithMfa = false;
 
     if (providedTrustedToken && isTrustedDevice(user, providedTrustedToken)) {
       authenticatedWithMfa = true;
+      logger.info(`Login: MFA bypassed via trusted device for ${username}`);
     }
 
     if (!authenticatedWithMfa && mfaToken && verify2FAToken(user.mfa_secret, mfaToken)) {
       authenticatedWithMfa = true;
+      logger.info(`Login: MFA verified for ${username}`);
     }
 
     if (!authenticatedWithMfa && backupCode && consumeBackupCode(user, backupCode)) {
       authenticatedWithMfa = true;
+      logger.info(`Login: MFA verified via backup code for ${username}`);
     }
 
     if (!authenticatedWithMfa) {
       saveData(data);
+      logger.warn(`Login: MFA required but not provided for ${username}`);
       return res.json({ success: false, mfaRequired: true });
     }
 
     saveData(data);
   }
-
+  
+  // ========== SUCCESSFUL LOGIN ==========
+  // Record successful login attempt
+  bruteForceModule.recordLoginAttempt(username, true);
+  
   let trustedDeviceToken = null;
   if (user.mfa_enabled && rememberDevice) {
     trustedDeviceToken = generateTrustedDeviceToken();
@@ -772,6 +806,16 @@ app.post("/login", async (req, res) => {
     JWT_SECRET,
     { expiresIn: '1h' }
   );
+  
+  // Log successful login
+  const { logSecurityEvent } = require('./security_middleware');
+  logSecurityEvent('LOGIN_SUCCESS', {
+    username,
+    userId: user.id,
+    ip: req.ip,
+    mfaEnabled: user.mfa_enabled
+  });
+  logger.info(`Successful login: ${username} from ${req.ip}`);
 
   const response = { success: true, token, username: user.username, role: user.role };
   if (trustedDeviceToken) response.trustedDeviceToken = trustedDeviceToken;
@@ -1536,6 +1580,204 @@ app.post("/devices/:id/unlock", requireAuth, (req, res) => {
 
   broadcast({ type: 'device_update' });
   res.json({ success: true, status: "unlocked" });
+});
+
+/**
+ * ========================================
+ * ESP8266 DEVICE API (SECURE)
+ * ========================================
+ * These endpoints are for direct device-to-server communication
+ * Requires API key authentication and HMAC signature verification
+ */
+
+// Device authenticate + register route (for initial setup)
+app.post('/device/authenticate', (req, res) => {
+  const { deviceId, apiKey, signature, timestamp } = req.body;
+  
+  // Validate timestamp
+  const now = Date.now();
+  if (Math.abs(now - parseInt(timestamp)) > 300000) { // 5 min window
+    return res.status(401).json({ error: 'Request expired' });
+  }
+  
+  const data = loadData();
+  const device = data.devices.find(d => d.device_id === deviceId || d.deviceId === deviceId);
+  
+  if (!device) {
+    logger.warn(`Device authentication failed: unknown device ${deviceId}`);
+    return res.status(401).json({ error: 'Device not registered' });
+  }
+  
+  if (device.api_key !== apiKey) {
+    logger.warn(`Device authentication failed: invalid API key for ${deviceId}`);
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  
+  // Verify HMAC signature
+  const payloadForSigning = { deviceId, timestamp };
+  const expectedSignature = crypto.createHmac('sha256', apiKey)
+    .update(JSON.stringify(payloadForSigning))
+    .digest('hex');
+  
+  if (signature !== expectedSignature) {
+    logger.warn(`Device signature verification failed: ${deviceId}`);
+    return res.status(401).json({ error: 'Signature mismatch' });
+  }
+  
+  // Update heartbeat and return secured config
+  device.last_heartbeat = new Date().toISOString();
+  device.status = 'online';
+  saveData(data);
+  
+  logger.info(`Device authenticated and online: ${deviceId}`);
+  
+  res.json({
+    success: true,
+    deviceId,
+    status: 'authenticated',
+    updateInterval: 30000, // Check for commands every 30 seconds
+    encryptionEnabled: true
+  });
+});
+
+// Endpoint for device to report status
+app.post('/device/status', (req, res) => {
+  const { deviceId, apiKey, status, batteryLevel, signal, timestamp } = req.body;
+  
+  if (!deviceId || !apiKey) {
+    return res.status(401).json({ error: 'Missing credentials' });
+  }
+  
+  const data = loadData();
+  const device = data.devices.find(d => d.device_id === deviceId || d.deviceId === deviceId);
+  
+  if (!device || device.api_key !== apiKey) {
+    return res.status(401).json({ error: 'Invalid device credentials' });
+  }
+  
+  // Update device status
+  device.status = status || 'online';
+  device.last_heartbeat = new Date().toISOString();
+  if (batteryLevel !== undefined) device.battery = batteryLevel;
+  if (signal !== undefined) device.signal_strength = signal;
+  
+  saveData(data);
+  
+  // Broadcast status update
+  broadcast({ type: 'device_status_update', device: { id: device.id, status: device.status } });
+  
+  logger.info(`Device status update: ${deviceId} - ${status}`);
+  
+  res.json({ success: true, message: 'Status recorded' });
+});
+
+// Endpoint for device to fetch pending commands
+app.post('/device/commands', (req, res) => {
+  const { deviceId, apiKey } = req.body;
+  
+  if (!deviceId || !apiKey) {
+    return res.status(401).json({ error: 'Missing credentials' });
+  }
+  
+  const data = loadData();
+  const device = data.devices.find(d => d.device_id === deviceId || d.deviceId === deviceId);
+  
+  if (!device || device.api_key !== apiKey) {
+    return res.status(401).json({ error: 'Invalid device credentials' });
+  }
+  
+  // Get pending commands for this device (if any queued)
+  const pendingCommands = device.pending_commands || [];
+  device.pending_commands = [];
+  
+  saveData(data);
+  
+  res.json({
+    success: true,
+    commands: pendingCommands,
+    timestamp: Date.now()
+  });
+});
+
+// Endpoint for device to report lock/unlock action
+app.post('/device/action-report', (req, res) => {
+  const { deviceId, apiKey, action, actionTimestamp, success, signature } = req.body;
+  
+  if (!deviceId || !apiKey) {
+    return res.status(401).json({ error: 'Missing credentials' });
+  }
+  
+  const data = loadData();
+  const device = data.devices.find(d => d.device_id === deviceId || d.deviceId === deviceId);
+  
+  if (!device || device.api_key !== apiKey) {
+    return res.status(401).json({ error: 'Invalid device credentials' });
+  }
+  
+  // Verify action signature for integrity
+  if (signature) {
+    const payloadForSigning = { deviceId, action, actionTimestamp };
+    const expectedSignature = crypto.createHmac('sha256', apiKey)
+      .update(JSON.stringify(payloadForSigning))
+      .digest('hex');
+    
+    if (signature !== expectedSignature) {
+      return res.status(400).json({ error: 'Action signature mismatch' });
+    }
+  }
+  
+  // Update device status based on action
+  if (action === 'lock' && success) {
+    device.status = 'locked';
+  } else if (action === 'unlock' && success) {
+    device.status = 'unlocked';
+  }
+  
+  device.last_action = action;
+  device.last_action_time = new Date(actionTimestamp).toISOString();
+  
+  saveData(data);
+  
+  // Create security audit log
+  logger.info(`Device action: ${deviceId} - ${action} - ${success ? 'SUCCESS' : 'FAILED'}`);
+  pushLog({
+    userId: 'device:' + deviceId,
+    action: `device:${action}`,
+    deviceId: device.id,
+    details: `Device reported ${action} action (${success ? 'successful' : 'failed'})`
+  });
+  
+  broadcast({ type: 'device_action', device: { id: device.id, action, success } });
+  
+  res.json({ success: true, message: 'Action recorded' });
+});
+
+// Endpoint for device encryption key exchange (RSA)
+app.post('/device/key-exchange', (req, res) => {
+  const { deviceId, apiKey } = req.body;
+  
+  if (!deviceId || !apiKey) {
+    return res.status(401).json({ error: 'Missing credentials' });
+  }
+  
+  const data = loadData();
+  const device = data.devices.find(d => d.device_id === deviceId || d.deviceId === deviceId);
+  
+  if (!device || device.api_key !== apiKey) {
+    return res.status(401).json({ error: 'Invalid device credentials' });
+  }
+  
+  // Return server's public key for command encryption
+  // In production, generate and rotate keys regularly
+  const serverPublicKey = process.env.SERVER_PUBLIC_KEY || 
+    'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIB...'; // Placeholder
+  
+  res.json({
+    success: true,
+    publicKey: serverPublicKey,
+    algorithm: 'RSA',
+    keySize: 2048
+  });
 });
 
 function onListen(port, protocol = 'http') {

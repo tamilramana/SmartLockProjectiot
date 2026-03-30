@@ -1,1 +1,26 @@
 {"level":"error","message":"Device Unlock Error: Request timed out","timestamp":"2026-03-30T13:33:34.357Z"}
+{"level":"error","message":"Bulk lock error for device-1: Request timed out","timestamp":"2026-03-30T13:53:42.120Z"}
+{"level":"error","message":"Bulk lock error for device-2: Request timed out","timestamp":"2026-03-30T13:53:42.130Z"}
+{"level":"error","message":"Bulk lock error for device-3: Request timed out","timestamp":"2026-03-30T13:53:42.131Z"}
+{"level":"error","message":"Bulk unlock error for device-1: Request timed out","timestamp":"2026-03-30T13:53:44.962Z"}
+{"level":"error","message":"Bulk unlock error for device-2: Request timed out","timestamp":"2026-03-30T13:53:44.962Z"}
+{"level":"error","message":"Bulk unlock error for device-3: Request timed out","timestamp":"2026-03-30T13:53:44.963Z"}
+{"level":"error","message":"Device Lock Error: Request timed out","timestamp":"2026-03-30T13:53:47.894Z"}
+{"level":"error","message":"Device Lock Error: Request timed out","timestamp":"2026-03-30T13:53:48.552Z"}
+{"level":"error","message":"Device Lock Error: Request timed out","timestamp":"2026-03-30T13:53:49.549Z"}
+{"level":"error","message":"Bulk unlock error for device-1: Request timed out","timestamp":"2026-03-30T14:10:48.873Z"}
+{"level":"error","message":"Scheduled lock error for device-1: Request timed out","timestamp":"2026-03-30 19:45:31"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 20:52:49"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-30T15:22:49.080Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-30 20:52:49.080"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 21:00:17"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-30T15:30:17.574Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-30 21:00:17.574"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-30 21:00:17"}
+{"level":"error","message":"Bulk lock error for device-1: Request timed out","timestamp":"2026-03-30 21:00:40"}
+{"level":"error","message":"Bulk lock error for device-2: Request timed out","timestamp":"2026-03-30 21:00:40"}
+{"level":"error","message":"Bulk lock error for device-3: Request timed out","timestamp":"2026-03-30 21:00:40"}
+{"level":"error","message":"Bulk unlock error for device-1: Request timed out","timestamp":"2026-03-30 21:00:42"}
+{"level":"error","message":"Bulk unlock error for device-2: Request timed out","timestamp":"2026-03-30 21:00:42"}
+{"level":"error","message":"Bulk unlock error for device-3: Request timed out","timestamp":"2026-03-30 21:00:42"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 21:08:38"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-30T15:38:38.093Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-30 21:08:38.093"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-30 21:08:38"}

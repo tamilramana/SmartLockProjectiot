@@ -1,136 +1,483 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://use.fontawesome.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <title>SmartLock — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 100vh;
     }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 40px 36px;
+
+    /* ── ICON FIX ── */
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
+
+    i.fas, i.far, i.fab, i.fa-solid, i.fa-regular, i.fa-brands {
+      font-family: "Font Awesome 6 Free" !important;
+      font-weight: 900 !important;
+      font-style: normal !important;
+      display: inline-block !important;
+      text-rendering: auto !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+    }
+
+    i.fab {
+      font-family: "Font Awesome 6 Brands" !important;
+      font-weight: 400 !important;
+    }
+
+    /* Prevent broken box fallback and fix touch targets */
+    i[class*="fa-"] {
+      pointer-events: none;
+    }
+    
+    i[class*="fa-"]::before {
+      display: inline-block;
+      font-style: normal;
+      font-variant: normal;
+      text-rendering: auto;
+      line-height: 1;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      display: flex;
+      gap: 60px;
+      align-items: center;
+      justify-content: center;
       width: 100%;
-      max-width: 400px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      max-width: 1000px;
+      padding: 20px;
     }
-    .logo { text-align: center; margin-bottom: 28px; }
-    .logo h1 { font-size: 2rem; color: #0f3460; font-weight: 700; }
-    .logo p { color: #666; font-size: 0.9rem; margin-top: 4px; }
-    label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: #444; font-weight: 600; }
+
+    .brand-section {
+      flex: 1;
+      color: white;
+      text-align: left;
+    }
+
+    .brand-section h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      font-family: 'Poppins', sans-serif;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .brand-section p {
+      font-size: 18px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .features {
+      list-style: none;
+    }
+
+    .features li {
+      font-size: 15px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .features li:before {
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      content: "\f00c";
+      margin-right: 12px;
+      font-size: 16px;
+      color: #4facfe;
+      display: inline-block;
+      width: 18px;
+      text-align: center;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 48px;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: slideIn 0.6s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #000000;
+      margin-bottom: 8px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .card-subtitle {
+      font-size: 14px;
+      color: #000000;
+      margin-bottom: 32px;
+      font-weight: 500;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #000000;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
     input {
-      width: 100%; padding: 10px 14px; border: 1.5px solid #ddd;
-      border-radius: 8px; font-size: 1rem; transition: border-color 0.2s;
-      margin-bottom: 18px;
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      background: #f9fafb;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      color: #000000;
+      font-weight: 500;
     }
-    input:focus { outline: none; border-color: #0f3460; }
+
+    input::placeholder {
+      color: #64748b;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      color: #000000;
+    }
+
+    input:hover {
+      border-color: #d1d5db;
+    }
+
     button {
-      width: 100%; padding: 12px; background: #0f3460; color: #fff;
-      border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
-      cursor: pointer; transition: background 0.2s;
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Inter', sans-serif;
     }
-    button:hover { background: #16213e; }
-    .error { color: #e74c3c; font-size: 0.87rem; margin-top: 12px; text-align: center; min-height: 20px; }
-    .mfa-section { display: none; }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, #f0f4ff 0%, #f9f3ff 100%);
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-top: 20px;
+      border-left: 4px solid #667eea;
+      font-size: 13px;
+      color: #000000;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .info-box strong {
+      color: #000000;
+      font-weight: 700;
+    }
+
+    #msg {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      min-height: 20px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    #msg.success {
+      background: #d1fae5;
+      color: #065f46;
+      border-left: 4px solid #10b981;
+    }
+
+    #msg.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border-left: 4px solid #ef4444;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 24px 0;
+      color: #d1d5db;
+      font-size: 13px;
+    }
+
+    .divider:before {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e5e7eb;
+    }
+
+    .divider span {
+      margin: 0 12px;
+      color: #000000;
+      font-weight: 600;
+    }
+
+    .divider:after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e5e7eb;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        gap: 40px;
+      }
+
+      .brand-section {
+        text-align: center;
+      }
+
+      .brand-section h1 {
+        font-size: 36px;
+      }
+
+      .card {
+        padding: 36px 28px;
+        max-width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-<div class="card">
-  <div class="logo">
-    <h1>🔒 SmartLock</h1>
-    <p>IoT Smart Lock Control System</p>
-  </div>
-  <div id="loginSection">
-    <label for="username">Username</label>
-    <input type="text" id="username" placeholder="Enter username" autocomplete="username" />
-    <label for="password">Password</label>
-    <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" />
-    <button id="loginBtn">Sign In</button>
-    <div class="error" id="errorMsg"></div>
-  </div>
-  <div id="mfaSection" class="mfa-section">
-    <label for="mfaToken">2FA Code</label>
-    <input type="text" id="mfaToken" placeholder="Enter 6-digit code" maxlength="6" />
-    <button id="mfaBtn">Verify</button>
-    <div class="error" id="mfaError"></div>
-  </div>
-</div>
-<script>
-  let pendingUser = null;
-  let pendingPass = null;
+  <div class="container">
+    <div class="brand-section">
+      <h1><i class="fas fa-lock"></i> SmartLock</h1>
+      <p>Secure your home with intelligent lock management</p>
+      <ul class="features">
+        <li>Real-time device control</li>
+        <li>Advanced security monitoring</li>
+        <li>Activity logging & alerts</li>
+        <li>Schedule automations</li>
+      </ul>
+    </div>
 
-  async function doLogin() {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    document.getElementById('errorMsg').textContent = '';
-    if (!username || !password) {
-      document.getElementById('errorMsg').textContent = 'Please enter username and password.';
+    <div class="card">
+      <h2>Welcome Back</h2>
+      <p class="card-subtitle">Sign in to your admin dashboard</p>
+      
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input id="username" type="text" placeholder="Enter your username" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" placeholder="Enter your password" required />
+        </div>
+        
+        <div class="form-group mfa-group" id="backupGroup" style="display:none">
+          <label for="backupCode">Backup Code</label>
+          <input id="backupCode" type="text" placeholder="Enter backup code" maxlength="32" />
+        </div>
+        <div class="form-group mfa-group" id="rememberGroup" style="display:none">
+          <label><input id="rememberDevice" type="checkbox" style="margin-right:8px;" /> Remember this device for 30 days</label>
+        </div>
+        <div class="form-group" id="mfaGroup" style="display:none">
+          <label for="mfaToken">MFA Verification Code</label>
+          <input id="mfaToken" type="text" placeholder="6-digit code" maxlength="6" />
+        </div>
+
+        <button type="submit" id="loginBtn">Sign in</button>
+      </form>
+
+      <div class="info-box">
+        <strong>Demo Credentials:</strong> <br>
+        Username: <strong>admin</strong> <br>
+        Password: <strong>admin</strong>
+      </div>
+
+      <p id="msg"></p>
+    </div>
+  </div>
+
+<script>
+const api = location.origin;
+
+function authHeaders() {
+  const t = localStorage.getItem('sl_token');
+  const h = { 'Content-Type': 'application/json' };
+  if (t) h['Authorization'] = 'Bearer ' + t;
+  return h;
+}
+
+async function handleLogin(event) {
+  event.preventDefault();
+  
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const mfaToken = document.getElementById('mfaToken').value.trim();
+  const backupCode = document.getElementById('backupCode').value.trim();
+  const rememberDevice = document.getElementById('rememberDevice').checked;
+  const trustedDeviceToken = localStorage.getItem('sl_trusted_device');
+  const loginBtn = document.getElementById('loginBtn');
+  
+  if (!username || !password) {
+    showMessage('Please enter both username and password', 'error');
+    return;
+  }
+  
+  try {
+    loginBtn.disabled = true;
+    loginBtn.innerText = 'Signing in...';
+    
+    const res = await fetch(api + '/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username,
+        password,
+        mfaToken: mfaToken || undefined,
+        backupCode: backupCode || undefined,
+        rememberDevice,
+        trustedDeviceToken: trustedDeviceToken || undefined
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (data.success && data.token) {
+      localStorage.setItem('sl_token', data.token);
+      localStorage.setItem('sl_user', data.username || username);
+      if (data.role) localStorage.setItem('sl_role', data.role);
+      if (data.trustedDeviceToken) {
+        localStorage.setItem('sl_trusted_device', data.trustedDeviceToken);
+      }
+      showMessage('Login successful! Redirecting...', 'success');
+      setTimeout(() => {
+        window.location.href = '/index.html';
+      }, 800);
       return;
     }
-    try {
-      const res = await fetch('/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await res.json();
-      if (data.success && data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('username', data.username);
-        localStorage.setItem('role', data.role);
-        window.location.href = '/index.html';
-      } else if (data.mfaRequired) {
-        pendingUser = username;
-        pendingPass = password;
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('mfaSection').style.display = 'block';
-      } else {
-        document.getElementById('errorMsg').textContent = data.error || 'Login failed.';
-      }
-    } catch (e) {
-      document.getElementById('errorMsg').textContent = 'Server error. Please try again.';
-    }
-  }
 
-  async function doMfa() {
-    const token = document.getElementById('mfaToken').value.trim();
-    document.getElementById('mfaError').textContent = '';
-    try {
-      const res = await fetch('/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: pendingUser, password: pendingPass, mfaToken: token })
-      });
-      const data = await res.json();
-      if (data.success && data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('username', data.username);
-        localStorage.setItem('role', data.role);
-        window.location.href = '/index.html';
-      } else {
-        document.getElementById('mfaError').textContent = data.error || 'Invalid 2FA code.';
-      }
-    } catch (e) {
-      document.getElementById('mfaError').textContent = 'Server error. Please try again.';
+    if (data.mfaRequired) {
+      document.getElementById('mfaGroup').style.display = 'block';
+      document.getElementById('backupGroup').style.display = 'block';
+      document.getElementById('rememberGroup').style.display = 'block';
+      showMessage('Enter your 6-digit MFA code or backup code to continue', 'error');
+      loginBtn.disabled = false;
+      loginBtn.innerText = 'Sign in';
+      return;
     }
-  }
 
-  document.getElementById('loginBtn').addEventListener('click', doLogin);
-  document.getElementById('mfaBtn').addEventListener('click', doMfa);
-  document.addEventListener('keydown', (e) => {
+    showMessage('Invalid username or password', 'error');
+    loginBtn.disabled = false;
+    loginBtn.innerText = 'Sign in';
+  } catch (e) {
+    showMessage('Connection error. Please try again', 'error');
+    loginBtn.disabled = false;
+    loginBtn.innerText = 'Sign in';
+  }
+}
+
+function showMessage(text, type) {
+  const msgEl = document.getElementById('msg');
+  msgEl.innerText = text;
+  msgEl.className = type;
+}
+
+// Allow enter key to submit
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('password').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
-      if (document.getElementById('mfaSection').style.display === 'block') doMfa();
-      else doLogin();
+      handleLogin(e);
     }
   });
+});
 </script>
 </body>
 </html>
