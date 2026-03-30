@@ -330,45 +330,36 @@ function ensureSampleData() {
 function forwardToDevice(deviceId, action) {
   return new Promise((resolve, reject) => {
     const data = loadData();
-    const device = data.devices.find(d => d.id === deviceId);
-    
+    const device = data.devices.find(d => d.id === deviceId || d.deviceId === deviceId);
+
     if (!device || !device.ip_address) {
       return reject(new Error("Device offline or not found"));
     }
 
     const ip = device.ip_address;
-    
-    // Create a 32-byte key from device API key or master key
-    const deviceKey = crypto.createHash('sha256').update(device.api_key || MASTER_KEY.toString()).digest();
 
-    const commandPayload = {
-      action: action,
-      timestamp: Date.now(),
-      nonce: crypto.randomBytes(8).toString('hex')
-    };
+    // Normalise action to bare command (strip leading slash)
+    const cmd = String(action).replace(/^\//, '');
+    if (!['lock', 'unlock'].includes(cmd)) {
+      return reject(new Error(`Invalid command: ${cmd}`));
+    }
 
-    // Encrypt payload using AES-256-GCM
-    const encryptedData = encryptPayload(commandPayload, deviceKey);
-    const postData = JSON.stringify(encryptedData);
-
-    if (!ip) return reject(new Error("No IP provided"));
+    // Forward as a simple GET request matching the ESP's /lock and /unlock routes.
+    // Pass the device API key as a query parameter so the ESP can authorise the request.
+    const path = `/${cmd}?apiKey=${encodeURIComponent(device.api_key || '')}`;
 
     const options = {
       hostname: ip,
       port: 80,
-      path: '/api/command',
-      method: "POST",
-      timeout: 4000, 
+      path,
+      method: 'GET',
+      timeout: 4000,
       agent: httpAgent,
-      headers: {
-        'Connection': 'close',
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData)
-      }
+      headers: { Connection: 'close' }
     };
 
     const req = http.request(options, (res) => {
-      res.on('data', () => {}); 
+      res.on('data', () => {});
       res.on('end', () => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve({ status: res.statusCode });
@@ -378,16 +369,12 @@ function forwardToDevice(deviceId, action) {
       });
     });
 
-    req.on('error', (err) => {
-      reject(err);
-    });
-
+    req.on('error', (err) => reject(err));
     req.on('timeout', () => {
-      req.destroy(); // Explicitly destroy request on timeout
-      reject(new Error("Request timed out"));
+      req.destroy();
+      reject(new Error('Request timed out'));
     });
 
-    req.write(postData);
     req.end();
   });
 }
@@ -696,6 +683,35 @@ initializeScheduleJobs();
 checkSchedules();
 setInterval(checkSchedules, 60 * 1000);
 
+// ===== Brute-force protection (in-memory, per username) =====
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+const loginAttempts = new Map(); // username -> { count, lockedUntil }
+
+function isAccountLocked(username) {
+  const entry = loginAttempts.get(username);
+  if (!entry || !entry.lockedUntil) return false;
+  if (Date.now() < entry.lockedUntil) return true;
+  // Lockout expired – reset
+  loginAttempts.delete(username);
+  return false;
+}
+
+function recordFailedLogin(username) {
+  const entry = loginAttempts.get(username) || { count: 0, lockedUntil: null };
+  entry.count += 1;
+  if (entry.count >= MAX_LOGIN_ATTEMPTS) {
+    entry.lockedUntil = Date.now() + LOCKOUT_DURATION_MS;
+    pushNotification('warning', `Account "${username}" temporarily locked after ${entry.count} failed login attempts.`);
+    logger.warn(`Brute-force lockout triggered for user "${username}"`);
+  }
+  loginAttempts.set(username, entry);
+}
+
+function clearFailedLogins(username) {
+  loginAttempts.delete(username);
+}
+
 // ===== routes =====
 
 // Health Check Endpoint
@@ -714,13 +730,29 @@ app.post("/login", async (req, res) => {
     deviceName
   } = req.body || {};
   const providedTrustedToken = getTrustedDeviceTokenFromRequest(req);
+
+  if (!username || !password) {
+    return res.status(400).json({ error: "Username and password are required" });
+  }
+
+  // Brute-force check
+  if (isAccountLocked(username)) {
+    logger.warn(`Blocked login attempt for locked account "${username}" from ${req.ip}`);
+    return res.status(429).json({ error: "Account temporarily locked due to too many failed attempts. Try again later." });
+  }
+
   const data = loadData();
   
   const user = data.users.find(u => u.username === username);
-  if (!user) return res.status(401).json({ error: "Invalid credentials" });
+  if (!user) {
+    recordFailedLogin(username);
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
   ensureUserMfaFields(user);
 
   if (!bcrypt.compareSync(password, user.password_hash)) {
+    recordFailedLogin(username);
+    logger.warn(`Failed login attempt for user "${username}" from ${req.ip}`);
     return res.status(401).json({ error: "Invalid credentials" });
   }
 
@@ -759,6 +791,9 @@ app.post("/login", async (req, res) => {
     JWT_SECRET,
     { expiresIn: '1h' }
   );
+
+  // Successful login – clear any recorded failed attempts
+  clearFailedLogins(username);
 
   const response = { success: true, token, username: user.username, role: user.role };
   if (trustedDeviceToken) response.trustedDeviceToken = trustedDeviceToken;
@@ -1020,6 +1055,105 @@ app.delete('/users/:username', requireAuth, (req, res) => {
   }
   saveData(data);
   pushLog({ userId: req.user.id, action: 'user:delete', details: `Deleted ${username}` });
+  res.json({ success: true });
+});
+
+// ── ESP Device Self-Registration (no user auth required) ──────────────
+// The ESP calls this endpoint on boot to register itself and receive its
+// API key back.  If the device was already registered it just refreshes
+// its IP address.
+app.post('/device/register', (req, res) => {
+  const { deviceId, ipAddress, name } = req.body || {};
+  if (!deviceId) return res.status(400).json({ error: 'deviceId is required' });
+
+  const data = loadData();
+  let device = data.devices.find(d => d.device_id === deviceId || d.deviceId === deviceId);
+
+  if (device) {
+    // Already registered – update IP and mark online
+    if (ipAddress) device.ip_address = ipAddress;
+    device.last_heartbeat = new Date().toISOString();
+    device.status = 'online';
+    saveData(data);
+    pushLog({ userId: null, action: 'device:reconnect', deviceId: device.id, details: `Device ${deviceId} reconnected from ${ipAddress || 'unknown'}` });
+    broadcast({ type: 'device_update' });
+    return res.json({ success: true, deviceId: device.id, apiKey: device.api_key });
+  }
+
+  // New device – generate a fresh API key and save it
+  const id = uuidv4();
+  const apiKey = crypto.randomBytes(32).toString('hex');
+  device = {
+    id,
+    device_id: deviceId,
+    deviceId,
+    name: name || `ESP-${deviceId}`,
+    location: '',
+    ip_address: ipAddress || null,
+    api_key: apiKey,
+    status: 'online',
+    last_heartbeat: new Date().toISOString(),
+    owner_id: null
+  };
+
+  data.devices.push(device);
+  saveData(data);
+  pushLog({ userId: null, action: 'device:register', deviceId: id, details: `New device "${device.name}" registered from ${ipAddress || 'unknown'}` });
+  pushNotification('info', `New device "${device.name}" registered. Assign it to a user in the dashboard.`);
+  broadcast({ type: 'device_update' });
+  res.status(201).json({ success: true, deviceId: id, apiKey });
+});
+
+// ── ESP Heartbeat (no user auth – uses device API key) ────────────────
+// The ESP calls this every ~30 s to keep the server updated with its
+// current IP address and to be marked "online".
+app.post('/device/heartbeat', (req, res) => {
+  const { deviceId, ipAddress, apiKey } = req.body || {};
+  if (!deviceId || !apiKey) {
+    return res.status(400).json({ error: 'deviceId and apiKey are required' });
+  }
+
+  const data = loadData();
+  const device = data.devices.find(
+    d => (d.device_id === deviceId || d.deviceId === deviceId) && d.api_key === apiKey
+  );
+
+  if (!device) return res.status(403).json({ error: 'Invalid device credentials' });
+
+  if (ipAddress) device.ip_address = ipAddress;
+  device.last_heartbeat = new Date().toISOString();
+  device.status = 'online';
+  saveData(data);
+
+  broadcast({ type: 'device_update' });
+  res.json({ success: true, timestamp: new Date().toISOString() });
+});
+
+// ── ESP Action Log (no user auth – uses device API key) ───────────────
+// The ESP calls this after executing a lock/unlock so the event is
+// recorded in the server's audit log.
+app.post('/device/log', (req, res) => {
+  const { deviceId, action, status, details, apiKey } = req.body || {};
+  if (!deviceId || !apiKey) {
+    return res.status(400).json({ error: 'deviceId and apiKey are required' });
+  }
+
+  const data = loadData();
+  const device = data.devices.find(
+    d => (d.device_id === deviceId || d.deviceId === deviceId) && d.api_key === apiKey
+  );
+
+  if (!device) return res.status(403).json({ error: 'Invalid device credentials' });
+
+  pushLog({
+    userId: null,
+    action: `device:${action || 'event'}`,
+    deviceId: device.id,
+    details: details || `Device reported ${action || 'event'}: ${status || ''}`,
+    severity: status === 'error' ? 'error' : 'info'
+  });
+
+  broadcast({ type: 'log_update' });
   res.json({ success: true });
 });
 
