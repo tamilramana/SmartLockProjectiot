@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartLock — Login</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .logo { text-align: center; margin-bottom: 28px; }
+    .logo h1 { font-size: 2rem; color: #0f3460; font-weight: 700; }
+    .logo p { color: #666; font-size: 0.9rem; margin-top: 4px; }
+    label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: #444; font-weight: 600; }
+    input {
+      width: 100%; padding: 10px 14px; border: 1.5px solid #ddd;
+      border-radius: 8px; font-size: 1rem; transition: border-color 0.2s;
+      margin-bottom: 18px;
+    }
+    input:focus { outline: none; border-color: #0f3460; }
+    button {
+      width: 100%; padding: 12px; background: #0f3460; color: #fff;
+      border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+    }
+    button:hover { background: #16213e; }
+    .error { color: #e74c3c; font-size: 0.87rem; margin-top: 12px; text-align: center; min-height: 20px; }
+    .mfa-section { display: none; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <h1>🔒 SmartLock</h1>
+    <p>IoT Smart Lock Control System</p>
+  </div>
+  <div id="loginSection">
+    <label for="username">Username</label>
+    <input type="text" id="username" placeholder="Enter username" autocomplete="username" />
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" />
+    <button onclick="doLogin()">Sign In</button>
+    <div class="error" id="errorMsg"></div>
+  </div>
+  <div id="mfaSection" class="mfa-section">
+    <label for="mfaToken">2FA Code</label>
+    <input type="text" id="mfaToken" placeholder="Enter 6-digit code" maxlength="6" />
+    <button onclick="doMfa()">Verify</button>
+    <div class="error" id="mfaError"></div>
+  </div>
+</div>
+<script>
+  let pendingUser = null;
+  let pendingPass = null;
+
+  async function doLogin() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    document.getElementById('errorMsg').textContent = '';
+    if (!username || !password) {
+      document.getElementById('errorMsg').textContent = 'Please enter username and password.';
+      return;
+    }
+    try {
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (data.success && data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        localStorage.setItem('role', data.role);
+        window.location.href = '/index.html';
+      } else if (data.mfaRequired) {
+        pendingUser = username;
+        pendingPass = password;
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('mfaSection').style.display = 'block';
+      } else {
+        document.getElementById('errorMsg').textContent = data.error || 'Login failed.';
+      }
+    } catch (e) {
+      document.getElementById('errorMsg').textContent = 'Server error. Please try again.';
+    }
+  }
+
+  async function doMfa() {
+    const token = document.getElementById('mfaToken').value.trim();
+    document.getElementById('mfaError').textContent = '';
+    try {
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: pendingUser, password: pendingPass, mfaToken: token })
+      });
+      const data = await res.json();
+      if (data.success && data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        localStorage.setItem('role', data.role);
+        window.location.href = '/index.html';
+      } else {
+        document.getElementById('mfaError').textContent = data.error || 'Invalid 2FA code.';
+      }
+    } catch (e) {
+      document.getElementById('mfaError').textContent = 'Server error. Please try again.';
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if (document.getElementById('mfaSection').style.display === 'block') doMfa();
+      else doLogin();
+    }
+  });
+</script>
+</body>
+</html>

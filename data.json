@@ -62,6 +62,17 @@
   ],
   "logs": [
     {
+      "id": "8e612087-1003-4c6e-8052-f3336aefc794",
+      "timestamp": "2026-03-30T13:19:54.145Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "device:lock",
+      "deviceId": "device-1",
+      "details": "Successfully locked Front Door Lock",
+      "severity": "info",
+      "log_hmac": "ceb17a0e96dee6340150d326fd4ff0c60b133d1f94c5125bbefcf6bf5b38765d"
+    },
+    {
       "id": "log-1",
       "timestamp": "2026-03-29T12:00:00.000Z",
       "userId": "admin-1",
@@ -74,6 +85,12 @@
     }
   ],
   "notifications": [
+    {
+      "id": "c71d29cc-6408-4df5-8bf6-0da6a1f1b316",
+      "timestamp": "2026-03-30T13:19:54.146Z",
+      "level": "info",
+      "message": "Front Door Lock has been locked by admin"
+    },
     {
       "id": "note-1",
       "timestamp": "2026-03-29T12:00:00.000Z",
