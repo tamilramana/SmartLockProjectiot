@@ -34,8 +34,12 @@
       "location": "Main Entrance",
       "ip_address": "192.168.1.101",
       "api_key": "sample-api-key-1",
-      "status": "unlocked",
-      "owner_id": "admin-1"
+      "status": "locked",
+      "owner_id": "admin-1",
+      "last_heartbeat": "2026-03-30T16:17:32.800Z",
+      "battery": 88,
+      "signal_strength": -62,
+      "pending_commands": []
     },
     {
       "id": "device-2",

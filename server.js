@@ -116,10 +116,12 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://use.fontawesome.com", "https://fonts.googleapis.com"],
+      styleSrcAttr: ["'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'", "ws:", "wss:"],
-      fontSrc: ["'self'"],
+      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://use.fontawesome.com"],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"],
     }
@@ -1482,6 +1484,11 @@ app.post('/api/schedules', requireAuth, (req, res) => {
   data.schedules.push(scheduleEntry);
   saveData(data);
   res.json({ success: true, schedule: scheduleEntry });
+});
+
+app.get('/schedules', requireAuth, (req, res) => {
+  const data = loadData();
+  res.json(data.schedules || []);
 });
 
 app.post('/schedules', requireAuth, (req, res) => {

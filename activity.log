@@ -10,3 +10,11 @@
 {"level":"error","message":"Bulk unlock error for device-3: Request timed out","timestamp":"2026-03-30 21:00:42"}
 {"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 21:08:38"}
 {"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-30 21:08:38"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 21:44:46"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-30 21:44:46"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 21:46:51"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-30 21:46:51"}
+{"level":"info","message":"Device authenticated and online: front-door","timestamp":"2026-03-30 21:47:32"}
+{"level":"info","message":"Device status update: front-door - locked","timestamp":"2026-03-30 21:47:32"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 21:50:09"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-30 21:50:09"}

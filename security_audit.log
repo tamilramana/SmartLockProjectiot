@@ -24,3 +24,14 @@
 {"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 21:08:38"}
 {"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-30T15:38:38.093Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-30 21:08:38.093"}
 {"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-30 21:08:38"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 21:44:46"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-30T16:14:46.306Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-30 21:44:46.306"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-30 21:44:46"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 21:46:51"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-30T16:16:51.662Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-30 21:46:51.662"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-30 21:46:51"}
+{"level":"info","message":"Device authenticated and online: front-door","timestamp":"2026-03-30 21:47:32"}
+{"level":"info","message":"Device status update: front-door - locked","timestamp":"2026-03-30 21:47:32"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-30 21:50:09"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-30T16:20:09.338Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-30 21:50:09.338"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-30 21:50:09"}
