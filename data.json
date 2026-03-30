@@ -62,6 +62,17 @@
   ],
   "logs": [
     {
+      "id": "01d6562c-c7ad-4842-8592-a2690aae0ef6",
+      "timestamp": "2026-03-30T13:33:30.353Z",
+      "userId": "admin-1",
+      "user": "admin",
+      "action": "device:unlock",
+      "deviceId": "device-2",
+      "details": "Successfully unlocked Garage Door",
+      "severity": "info",
+      "log_hmac": "99f4d03b4bee98d550f0580345d978254fc04dfa86eb49a96153dfd50105ffdc"
+    },
+    {
       "id": "8e612087-1003-4c6e-8052-f3336aefc794",
       "timestamp": "2026-03-30T13:19:54.145Z",
       "userId": "admin-1",
@@ -85,6 +96,12 @@
     }
   ],
   "notifications": [
+    {
+      "id": "0ab4bb1a-f97c-4964-9d60-5ca63c6d485e",
+      "timestamp": "2026-03-30T13:33:30.354Z",
+      "level": "info",
+      "message": "Garage Door has been unlocked by admin"
+    },
     {
       "id": "c71d29cc-6408-4df5-8bf6-0da6a1f1b316",
       "timestamp": "2026-03-30T13:19:54.146Z",

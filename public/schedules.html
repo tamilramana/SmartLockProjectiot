@@ -70,7 +70,7 @@
   </div>
   <div style="display:flex;align-items:center">
     <span class="user" id="userDisplay"></span>
-    <button class="logout" onclick="logout()">Logout</button>
+    <button class="logout" id="logoutBtn">Logout</button>
   </div>
 </nav>
 <div class="container">
@@ -93,8 +93,8 @@
     </div>
 
     <div class="schedule-type">
-      <label><input type="radio" name="schedType" value="once" checked onchange="toggleType()" /> One-time</label>
-      <label><input type="radio" name="schedType" value="weekly" onchange="toggleType()" /> Weekly recurring</label>
+      <label><input type="radio" name="schedType" value="once" checked  /> One-time</label>
+      <label><input type="radio" name="schedType" value="weekly"  /> Weekly recurring</label>
     </div>
 
     <div id="onceSection">
@@ -105,13 +105,13 @@
     <div id="weeklySection" style="display:none">
       <label>Days of Week</label>
       <div class="days-grid" id="daysGrid">
-        <button class="day-btn" data-day="0" onclick="toggleDay(this)">Su</button>
-        <button class="day-btn" data-day="1" onclick="toggleDay(this)">Mo</button>
-        <button class="day-btn" data-day="2" onclick="toggleDay(this)">Tu</button>
-        <button class="day-btn" data-day="3" onclick="toggleDay(this)">We</button>
-        <button class="day-btn" data-day="4" onclick="toggleDay(this)">Th</button>
-        <button class="day-btn" data-day="5" onclick="toggleDay(this)">Fr</button>
-        <button class="day-btn" data-day="6" onclick="toggleDay(this)">Sa</button>
+        <button class="day-btn" data-day="0" >Su</button>
+        <button class="day-btn" data-day="1" >Mo</button>
+        <button class="day-btn" data-day="2" >Tu</button>
+        <button class="day-btn" data-day="3" >We</button>
+        <button class="day-btn" data-day="4" >Th</button>
+        <button class="day-btn" data-day="5" >Fr</button>
+        <button class="day-btn" data-day="6" >Sa</button>
       </div>
       <div class="form-row">
         <div>
@@ -125,7 +125,7 @@
       </div>
     </div>
 
-    <button class="btn btn-primary" onclick="createSchedule()">+ Create Schedule</button>
+    <button class="btn btn-primary" id="createSchedBtn">+ Create Schedule</button>
   </div>
 
   <div class="section">
@@ -195,11 +195,11 @@
           schDesc = s.daysOfWeek.map(d => dayNames[d]).join(', ') + ` at ${String(s.hour||0).padStart(2,'0')}:${String(s.minute||0).padStart(2,'0')}`;
         }
         html += `<tr>
-          <td><span class="badge ${cls}">${s.action.toUpperCase()}</span></td>
-          <td>${s.deviceId || 'All Devices'}</td>
-          <td>${schDesc}</td>
+          <td><span class="badge ${cls}">${escText(s.action.toUpperCase())}</span></td>
+          <td>${escText(s.deviceId || 'All Devices')}</td>
+          <td>${escText(schDesc)}</td>
           <td>${s.created_at ? new Date(s.created_at).toLocaleDateString() : '—'}</td>
-          <td><button class="btn btn-danger btn-sm" onclick="deleteSchedule('${s.id}')">Delete</button></td>
+          <td><button class="btn btn-danger btn-sm" data-action="delete" data-id="${escAttr(s.id)}">Delete</button></td>
         </tr>`;
       });
       html += '</tbody></table>';
@@ -244,6 +244,30 @@
     if (data.success) { showToast('Schedule deleted.'); loadSchedules(); }
     else alert('Error: ' + (data.error || 'Unknown'));
   }
+
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('createSchedBtn').addEventListener('click', createSchedule);
+  document.getElementById('daysGrid').addEventListener('click', (e) => {
+    const btn = e.target.closest('.day-btn');
+    if (btn) btn.classList.toggle('selected');
+  });
+  document.querySelectorAll('input[name="schedType"]').forEach(radio => {
+    radio.addEventListener('change', toggleType);
+  });
+  document.getElementById('schedulesList').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action="delete"][data-id]');
+    if (btn) deleteSchedule(btn.dataset.id);
+  });
 
   loadDevices();
   loadSchedules();

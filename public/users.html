@@ -73,7 +73,7 @@
   </div>
   <div style="display:flex;align-items:center">
     <span class="user" id="userDisplay"></span>
-    <button class="logout" onclick="logout()">Logout</button>
+    <button class="logout" id="logoutBtn">Logout</button>
   </div>
 </nav>
 <div class="container">
@@ -100,7 +100,7 @@
         </select>
       </div>
       <div style="display:flex;align-items:flex-end;padding-bottom:14px">
-        <button class="btn btn-primary" style="width:100%" onclick="addUser()">+ Add User</button>
+        <button class="btn btn-primary" style="width:100%" id="addUserBtn">+ Add User</button>
       </div>
     </div>
   </div>
@@ -123,8 +123,8 @@
       <option value="admin">Admin</option>
     </select>
     <div class="modal-actions">
-      <button class="btn" style="background:#eee;color:#333" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveUser()">Save</button>
+      <button class="btn" style="background:#eee;color:#333" id="cancelModalBtn">Cancel</button>
+      <button class="btn btn-primary" id="saveUserBtn">Save</button>
     </div>
   </div>
 </div>
@@ -166,13 +166,13 @@
         const mfaCls = u.mfa_enabled ? 'mfa-on' : 'mfa-off';
         const mfaText = u.mfa_enabled ? '2FA ON' : '2FA OFF';
         html += `<tr>
-          <td><strong>${u.username}</strong></td>
-          <td><span class="badge ${roleCls}">${u.role.toUpperCase()}</span></td>
-          <td><span class="mfa-badge ${mfaCls}">${mfaText}</span></td>
+          <td><strong>${escText(u.username)}</strong></td>
+          <td><span class="badge ${roleCls}">${escText(u.role.toUpperCase())}</span></td>
+          <td><span class="mfa-badge ${mfaCls}">${escText(mfaText)}</span></td>
           <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
           <td>
-            <button class="btn btn-warning btn-sm" onclick="openEdit('${u.username}','${u.role}')">Edit</button>
-            <button class="btn btn-danger btn-sm" style="margin-left:6px" onclick="deleteUser('${u.username}')" ${u.username === username ? 'disabled title="Cannot delete yourself"' : ''}>Delete</button>
+            <button class="btn btn-warning btn-sm" data-action="edit" data-username="${escAttr(u.username)}" data-role="${escAttr(u.role)}">Edit</button>
+            <button class="btn btn-danger btn-sm" style="margin-left:6px" data-action="delete" data-username="${escAttr(u.username)}" ${u.username === username ? 'disabled title="Cannot delete yourself"' : ''}>Delete</button>
           </td>
         </tr>`;
       });
@@ -232,8 +232,31 @@
     else alert('Error: ' + (data.error || 'Unknown'));
   }
 
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('addUserBtn').addEventListener('click', addUser);
+  document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+  document.getElementById('saveUserBtn').addEventListener('click', saveUser);
+
   document.getElementById('modal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  document.getElementById('usersList').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action][data-username]');
+    if (!btn || btn.disabled) return;
+    const { action, username: uname, role: urole } = btn.dataset;
+    if (action === 'edit') openEdit(uname, urole || 'user');
+    else if (action === 'delete') deleteUser(uname);
   });
 
   loadUsers();

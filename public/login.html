@@ -53,13 +53,13 @@
     <input type="text" id="username" placeholder="Enter username" autocomplete="username" />
     <label for="password">Password</label>
     <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" />
-    <button onclick="doLogin()">Sign In</button>
+    <button id="loginBtn">Sign In</button>
     <div class="error" id="errorMsg"></div>
   </div>
   <div id="mfaSection" class="mfa-section">
     <label for="mfaToken">2FA Code</label>
     <input type="text" id="mfaToken" placeholder="Enter 6-digit code" maxlength="6" />
-    <button onclick="doMfa()">Verify</button>
+    <button id="mfaBtn">Verify</button>
     <div class="error" id="mfaError"></div>
   </div>
 </div>
@@ -123,6 +123,8 @@
     }
   }
 
+  document.getElementById('loginBtn').addEventListener('click', doLogin);
+  document.getElementById('mfaBtn').addEventListener('click', doMfa);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       if (document.getElementById('mfaSection').style.display === 'block') doMfa();

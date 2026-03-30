@@ -101,16 +101,16 @@
   </div>
   <div style="display:flex;align-items:center">
     <span class="user" id="userDisplay"></span>
-    <button class="logout" onclick="logout()">Logout</button>
+    <button class="logout" id="logoutBtn">Logout</button>
   </div>
 </nav>
 <div class="container">
   <h2>Devices</h2>
   <div class="action-row">
-    <button class="btn btn-primary" onclick="openAddModal()">+ Add Device</button>
-    <button class="btn btn-danger" onclick="bulkLock()">🔒 Lock All</button>
-    <button class="btn btn-success" onclick="bulkUnlock()">🔓 Unlock All</button>
-    <button class="btn btn-primary" style="background:#555" onclick="loadDevices()">↺ Refresh</button>
+    <button class="btn btn-primary" id="addDeviceBtn">+ Add Device</button>
+    <button class="btn btn-danger" id="lockAllBtn">🔒 Lock All</button>
+    <button class="btn btn-success" id="unlockAllBtn">🔓 Unlock All</button>
+    <button class="btn btn-primary" style="background:#555" id="refreshBtn">↺ Refresh</button>
   </div>
   <div id="devicesGrid" class="devices-grid loading">Loading…</div>
 </div>
@@ -128,8 +128,8 @@
     <label>IP Address (optional)</label>
     <input type="text" id="fIp" placeholder="e.g. 192.168.1.101" />
     <div class="modal-actions">
-      <button class="btn" style="background:#eee;color:#333" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveDevice()">Save</button>
+      <button class="btn" style="background:#eee;color:#333" id="cancelModalBtn">Cancel</button>
+      <button class="btn btn-primary" id="saveDeviceBtn">Save</button>
     </div>
   </div>
 </div>
@@ -177,16 +177,19 @@
       let html = '';
       devices.forEach(d => {
         const st = d.status || 'offline';
-        html += `<div class="device-card ${st}">
-          <div class="name">${d.name}</div>
-          <div class="location">📍 ${d.location || '—'}</div>
-          <div class="ip-info">IP: ${d.ip_address || d.ipAddress || '—'}</div>
+        const devId = d.id;
+        html += `<div class="device-card ${st}" data-id="${escAttr(devId)}">
+          <div class="name">${escText(d.name)}</div>
+          <div class="location">📍 ${escText(d.location || '—')}</div>
+          <div class="ip-info">IP: ${escText(d.ip_address || d.ipAddress || '—')}</div>
           <div class="status-row" style="margin-top:8px">${statusBadge(st)}</div>
           <div class="card-actions">
-            <button class="btn btn-danger btn-sm" onclick="lockDevice('${d.id}')">🔒 Lock</button>
-            <button class="btn btn-success btn-sm" onclick="unlockDevice('${d.id}')">🔓 Unlock</button>
-            <button class="btn btn-warning btn-sm" onclick="editDevice('${d.id}','${escHtml(d.name)}','${escHtml(d.location||'')}','${escHtml(d.deviceId||'')}','${escHtml(d.ip_address||d.ipAddress||'')}')">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteDevice('${d.id}','${escHtml(d.name)}')">Delete</button>
+            <button class="btn btn-danger btn-sm" data-action="lock" data-id="${escAttr(devId)}">🔒 Lock</button>
+            <button class="btn btn-success btn-sm" data-action="unlock" data-id="${escAttr(devId)}">🔓 Unlock</button>
+            <button class="btn btn-warning btn-sm" data-action="edit" data-id="${escAttr(devId)}"
+              data-name="${escAttr(d.name)}" data-location="${escAttr(d.location||'')}"
+              data-deviceid="${escAttr(d.deviceId||'')}" data-ip="${escAttr(d.ip_address||d.ipAddress||'')}">Edit</button>
+            <button class="btn btn-danger btn-sm" data-action="delete" data-id="${escAttr(devId)}" data-name="${escAttr(d.name)}">Delete</button>
           </div>
         </div>`;
       });
@@ -197,7 +200,15 @@
     }
   }
 
-  function escHtml(s) { return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
 
   async function lockDevice(id) {
     const res = await fetch(`/devices/${id}/lock`, { method: 'POST', headers: authHeaders() });
@@ -282,8 +293,26 @@
     loadDevices();
   }
 
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('addDeviceBtn').addEventListener('click', openAddModal);
+  document.getElementById('lockAllBtn').addEventListener('click', bulkLock);
+  document.getElementById('unlockAllBtn').addEventListener('click', bulkUnlock);
+  document.getElementById('refreshBtn').addEventListener('click', loadDevices);
+  document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+  document.getElementById('saveDeviceBtn').addEventListener('click', saveDevice);
+
   document.getElementById('modal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  document.getElementById('devicesGrid').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action][data-id]');
+    if (!btn) return;
+    const { action, id, name, location, deviceid, ip } = btn.dataset;
+    if (action === 'lock') lockDevice(id);
+    else if (action === 'unlock') unlockDevice(id);
+    else if (action === 'edit') editDevice(id, name || '', location || '', deviceid || '', ip || '');
+    else if (action === 'delete') deleteDevice(id, name || '');
   });
 
   loadDevices();

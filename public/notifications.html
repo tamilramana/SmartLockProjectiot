@@ -59,7 +59,7 @@
   </div>
   <div style="display:flex;align-items:center">
     <span class="user" id="userDisplay"></span>
-    <button class="logout" onclick="logout()">Logout</button>
+    <button class="logout" id="logoutBtn">Logout</button>
   </div>
 </nav>
 <div class="container">
@@ -74,10 +74,10 @@
           <option value="warning">Warning</option>
           <option value="critical">Critical</option>
         </select>
-        <button class="btn btn-primary" onclick="addNotification()">Add</button>
+        <button class="btn btn-primary" id="addNotifBtn">Add</button>
       </div>
     </div>
-    <button class="btn btn-primary" style="background:#555;align-self:flex-end" onclick="loadNotifications()">↺ Refresh</button>
+    <button class="btn btn-primary" style="background:#555;align-self:flex-end" id="refreshBtn">↺ Refresh</button>
   </div>
   <div class="section">
     <div id="notifsList" class="loading">Loading…</div>
@@ -117,9 +117,9 @@
         const cls = n.level === 'warning' ? 'badge-warning' : n.level === 'critical' ? 'badge-critical' : 'badge-info';
         html += `<tr>
           <td>${new Date(n.timestamp).toLocaleString()}</td>
-          <td><span class="badge ${cls}">${(n.level||'info').toUpperCase()}</span></td>
-          <td>${n.message}</td>
-          <td><button class="btn btn-danger btn-sm" onclick="deleteNotif('${n.id}')">Delete</button></td>
+          <td><span class="badge ${cls}">${escText((n.level||'info').toUpperCase())}</span></td>
+          <td>${escText(n.message)}</td>
+          <td><button class="btn btn-danger btn-sm" data-action="delete" data-id="${escAttr(n.id)}">Delete</button></td>
         </tr>`;
       });
       html += '</tbody></table>';
@@ -153,6 +153,25 @@
     if (data.success) { showToast('Deleted.'); loadNotifications(); }
     else alert('Error: ' + (data.error || 'Unknown'));
   }
+
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('addNotifBtn').addEventListener('click', addNotification);
+  document.getElementById('refreshBtn').addEventListener('click', loadNotifications);
+
+  document.getElementById('notifsList').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action="delete"][data-id]');
+    if (btn) deleteNotif(btn.dataset.id);
+  });
 
   loadNotifications();
 </script>

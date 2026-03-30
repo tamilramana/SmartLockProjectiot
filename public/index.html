@@ -81,7 +81,7 @@
   </div>
   <div style="display:flex;align-items:center">
     <span class="user" id="userDisplay"></span>
-    <button class="logout" onclick="logout()">Logout</button>
+    <button class="logout" id="logoutBtn">Logout</button>
   </div>
 </nav>
 <div class="container">
@@ -94,8 +94,8 @@
   </div>
 
   <div class="action-row">
-    <button class="btn btn-danger" onclick="bulkLock()">🔒 Lock All</button>
-    <button class="btn btn-success" onclick="bulkUnlock()">🔓 Unlock All</button>
+    <button class="btn btn-danger" id="lockAllBtn">🔒 Lock All</button>
+    <button class="btn btn-success" id="unlockAllBtn">🔓 Unlock All</button>
   </div>
 
   <div class="section">
@@ -151,13 +151,14 @@
       } else {
         let rows = '<table><thead><tr><th>Name</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
         devices.slice(0, 5).forEach(d => {
+          const devId = d.id.replace(/[^a-zA-Z0-9-_]/g, '');
           rows += `<tr>
-            <td><strong>${d.name}</strong></td>
-            <td>${d.location || '—'}</td>
+            <td><strong>${escText(d.name)}</strong></td>
+            <td>${escText(d.location || '—')}</td>
             <td>${statusBadge(d.status)}</td>
             <td>
-              <button class="btn btn-danger" style="padding:4px 10px;font-size:0.8rem" onclick="quickLock('${d.id}')">Lock</button>
-              <button class="btn btn-success" style="padding:4px 10px;font-size:0.8rem;margin-left:6px" onclick="quickUnlock('${d.id}')">Unlock</button>
+              <button class="btn btn-danger" style="padding:4px 10px;font-size:0.8rem" data-action="lock" data-id="${devId}">Lock</button>
+              <button class="btn btn-success" style="padding:4px 10px;font-size:0.8rem;margin-left:6px" data-action="unlock" data-id="${devId}">Unlock</button>
             </td>
           </tr>`;
         });
@@ -173,8 +174,8 @@
           const cls = n.level === 'warning' ? 'badge-warning' : n.level === 'critical' ? 'badge-critical' : 'badge-info';
           rows += `<tr>
             <td>${new Date(n.timestamp).toLocaleString()}</td>
-            <td><span class="badge ${cls}">${n.level.toUpperCase()}</span></td>
-            <td>${n.message}</td>
+            <td><span class="badge ${cls}">${escText(n.level.toUpperCase())}</span></td>
+            <td>${escText(n.message)}</td>
           </tr>`;
         });
         rows += '</tbody></table>';
@@ -204,6 +205,24 @@
     await fetch('/unlock', { method: 'POST', headers: authHeaders() });
     loadDashboard();
   }
+
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('lockAllBtn').addEventListener('click', bulkLock);
+  document.getElementById('unlockAllBtn').addEventListener('click', bulkUnlock);
+
+  document.getElementById('devicesList').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action][data-id]');
+    if (!btn) return;
+    const { action, id } = btn.dataset;
+    if (action === 'lock') quickLock(id);
+    else if (action === 'unlock') quickUnlock(id);
+  });
 
   loadDashboard();
 </script>

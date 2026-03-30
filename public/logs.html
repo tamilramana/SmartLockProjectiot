@@ -56,14 +56,14 @@
   </div>
   <div style="display:flex;align-items:center">
     <span class="user" id="userDisplay"></span>
-    <button class="logout" onclick="logout()">Logout</button>
+    <button class="logout" id="logoutBtn">Logout</button>
   </div>
 </nav>
 <div class="container">
   <h2>Activity Logs</h2>
   <div class="action-row">
-    <input type="text" id="filterInput" placeholder="Filter by action or user…" oninput="filterLogs()" style="width:260px" />
-    <button class="btn btn-primary" onclick="loadLogs()">↺ Refresh</button>
+    <input type="text" id="filterInput" placeholder="Filter by action or user…" style="width:260px" />
+    <button class="btn btn-primary" id="refreshBtn">↺ Refresh</button>
   </div>
   <div class="section">
     <div id="logsList" class="loading">Loading…</div>
@@ -94,14 +94,20 @@
       const cls = sev === 'warning' ? 'badge-warning' : sev === 'critical' || sev === 'error' ? 'badge-error' : 'badge-info';
       html += `<tr>
         <td>${new Date(l.timestamp).toLocaleString()}</td>
-        <td>${l.user || '—'}</td>
-        <td class="action-text">${l.action || '—'}</td>
-        <td>${l.details || l.deviceName || '—'}</td>
-        <td><span class="badge ${cls}">${sev.toUpperCase()}</span></td>
+        <td>${escText(l.user || '—')}</td>
+        <td class="action-text">${escText(l.action || '—')}</td>
+        <td>${escText(l.details || l.deviceName || '—')}</td>
+        <td><span class="badge ${cls}">${escText(sev.toUpperCase())}</span></td>
       </tr>`;
     });
     html += '</tbody></table>';
     document.getElementById('logsList').innerHTML = html;
+  }
+
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
   }
 
   async function loadLogs() {
@@ -126,6 +132,10 @@
     );
     renderLogs(filtered);
   }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('refreshBtn').addEventListener('click', loadLogs);
+  document.getElementById('filterInput').addEventListener('input', filterLogs);
 
   loadLogs();
 </script>
