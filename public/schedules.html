@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartLock — Schedules</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
+    nav {
+      background: #0f3460; color: #fff; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 56px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    nav .brand { font-size: 1.3rem; font-weight: 700; text-decoration: none; color: #fff; }
+    nav .links a { color: #ccd; text-decoration: none; margin-left: 20px; font-size: 0.9rem; }
+    nav .links a:hover, nav .links a.active { color: #fff; }
+    nav .user { font-size: 0.85rem; color: #aac; margin-left: 20px; }
+    nav .logout { background: #e74c3c; border: none; color: #fff; padding: 6px 14px;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-left: 12px; }
+    nav .logout:hover { background: #c0392b; }
+    .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+    h2 { margin-bottom: 20px; color: #0f3460; }
+    .section { background: #fff; border-radius: 12px; padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 24px; }
+    .section h3 { margin-bottom: 16px; color: #333; font-size: 1.05rem; }
+    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-primary { background: #0f3460; color: #fff; }
+    .btn-primary:hover { background: #16213e; }
+    .btn-danger { background: #e74c3c; color: #fff; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-sm { padding: 5px 12px; font-size: 0.82rem; }
+    label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #555; font-weight: 600; }
+    input, select { width: 100%; padding: 9px 12px; border: 1.5px solid #ddd;
+      border-radius: 8px; font-size: 0.95rem; margin-bottom: 14px; }
+    input:focus, select:focus { outline: none; border-color: #0f3460; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    th { background: #f8f9fa; color: #555; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
+    .badge-lock { background: #fdecea; color: #e74c3c; }
+    .badge-unlock { background: #e8f5e9; color: #27ae60; }
+    .loading { text-align: center; padding: 30px; color: #999; }
+    .empty { text-align: center; padding: 20px; color: #bbb; font-style: italic; }
+    .schedule-type { display: flex; gap: 20px; margin-bottom: 14px; }
+    .schedule-type label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: normal; }
+    .days-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .day-btn {
+      width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #ddd;
+      background: #fff; cursor: pointer; font-size: 0.78rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; transition: 0.2s;
+    }
+    .day-btn.selected { background: #0f3460; color: #fff; border-color: #0f3460; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #323232; color: #fff;
+      padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; z-index: 200; display: none; }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/index.html">🔒 SmartLock</a>
+  <div class="links">
+    <a href="/index.html">Dashboard</a>
+    <a href="/devices.html">Devices</a>
+    <a href="/notifications.html">Notifications</a>
+    <a href="/logs.html">Logs</a>
+    <a href="/schedules.html" class="active">Schedules</a>
+    <a href="/users.html" id="usersLink" style="display:none">Users</a>
+  </div>
+  <div style="display:flex;align-items:center">
+    <span class="user" id="userDisplay"></span>
+    <button class="logout" id="logoutBtn">Logout</button>
+  </div>
+</nav>
+<div class="container">
+  <h2>Schedules</h2>
+
+  <div class="section">
+    <h3>Create Schedule</h3>
+    <div class="form-row">
+      <div>
+        <label>Action</label>
+        <select id="sAction">
+          <option value="lock">Lock</option>
+          <option value="unlock">Unlock</option>
+        </select>
+      </div>
+      <div>
+        <label>Device (optional — blank = all)</label>
+        <select id="sDevice"><option value="">All Devices</option></select>
+      </div>
+    </div>
+
+    <div class="schedule-type">
+      <label><input type="radio" name="schedType" value="once" checked  /> One-time</label>
+      <label><input type="radio" name="schedType" value="weekly"  /> Weekly recurring</label>
+    </div>
+
+    <div id="onceSection">
+      <label>Date & Time</label>
+      <input type="datetime-local" id="sTime" />
+    </div>
+
+    <div id="weeklySection" style="display:none">
+      <label>Days of Week</label>
+      <div class="days-grid" id="daysGrid">
+        <button class="day-btn" data-day="0" >Su</button>
+        <button class="day-btn" data-day="1" >Mo</button>
+        <button class="day-btn" data-day="2" >Tu</button>
+        <button class="day-btn" data-day="3" >We</button>
+        <button class="day-btn" data-day="4" >Th</button>
+        <button class="day-btn" data-day="5" >Fr</button>
+        <button class="day-btn" data-day="6" >Sa</button>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Hour (0-23)</label>
+          <input type="number" id="sHour" min="0" max="23" placeholder="e.g. 21" />
+        </div>
+        <div>
+          <label>Minute (0-59)</label>
+          <input type="number" id="sMinute" min="0" max="59" placeholder="e.g. 0" />
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="createSchedBtn">+ Create Schedule</button>
+  </div>
+
+  <div class="section">
+    <h3>Active Schedules</h3>
+    <div id="schedulesList" class="loading">Loading…</div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+  const username = localStorage.getItem('username');
+  if (!token) { window.location.href = '/login.html'; }
+
+  document.getElementById('userDisplay').textContent = username ? `👤 ${username}` : '';
+  if (role === 'admin') document.getElementById('usersLink').style.display = 'inline';
+
+  function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+  function authHeaders() { return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }; }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2500);
+  }
+
+  function toggleType() {
+    const val = document.querySelector('input[name="schedType"]:checked').value;
+    document.getElementById('onceSection').style.display = val === 'once' ? 'block' : 'none';
+    document.getElementById('weeklySection').style.display = val === 'weekly' ? 'block' : 'none';
+  }
+
+  function toggleDay(btn) { btn.classList.toggle('selected'); }
+
+  async function loadDevices() {
+    try {
+      const res = await fetch('/api/devices', { headers: authHeaders() });
+      if (res.status === 401) { logout(); return; }
+      const devices = await res.json();
+      const sel = document.getElementById('sDevice');
+      devices.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = d.name;
+        sel.appendChild(opt);
+      });
+    } catch (e) {}
+  }
+
+  async function loadSchedules() {
+    document.getElementById('schedulesList').innerHTML = '<div class="loading">Loading…</div>';
+    try {
+      const res = await fetch('/api/schedules', { headers: authHeaders() });
+      if (res.status === 401) { logout(); return; }
+      const schedules = await res.json();
+      if (!schedules.length) {
+        document.getElementById('schedulesList').innerHTML = '<div class="empty">No schedules.</div>';
+        return;
+      }
+      let html = '<table><thead><tr><th>Action</th><th>Device</th><th>Schedule</th><th>Created</th><th></th></tr></thead><tbody>';
+      schedules.forEach(s => {
+        const cls = s.action === 'lock' ? 'badge-lock' : 'badge-unlock';
+        let schDesc = '';
+        if (s.time) { schDesc = new Date(s.time).toLocaleString(); }
+        else if (Array.isArray(s.daysOfWeek)) {
+          const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+          schDesc = s.daysOfWeek.map(d => dayNames[d]).join(', ') + ` at ${String(s.hour||0).padStart(2,'0')}:${String(s.minute||0).padStart(2,'0')}`;
+        }
+        html += `<tr>
+          <td><span class="badge ${cls}">${escText(s.action.toUpperCase())}</span></td>
+          <td>${escText(s.deviceId || 'All Devices')}</td>
+          <td>${escText(schDesc)}</td>
+          <td>${s.created_at ? new Date(s.created_at).toLocaleDateString() : '—'}</td>
+          <td><button class="btn btn-danger btn-sm" data-action="delete" data-id="${escAttr(s.id)}">Delete</button></td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById('schedulesList').innerHTML = html;
+    } catch (e) {
+      document.getElementById('schedulesList').innerHTML = '<div class="empty">Error loading schedules.</div>';
+    }
+  }
+
+  async function createSchedule() {
+    const action = document.getElementById('sAction').value;
+    const deviceId = document.getElementById('sDevice').value || null;
+    const schedType = document.querySelector('input[name="schedType"]:checked').value;
+    const body = { action };
+    if (deviceId) body.deviceId = deviceId;
+
+    if (schedType === 'once') {
+      const timeVal = document.getElementById('sTime').value;
+      if (!timeVal) { alert('Please select a date and time.'); return; }
+      body.time = new Date(timeVal).toISOString();
+    } else {
+      const selectedDays = Array.from(document.querySelectorAll('.day-btn.selected')).map(b => Number(b.dataset.day));
+      if (!selectedDays.length) { alert('Please select at least one day.'); return; }
+      const hour = parseInt(document.getElementById('sHour').value, 10);
+      const minute = parseInt(document.getElementById('sMinute').value, 10);
+      if (isNaN(hour) || isNaN(minute)) { alert('Please enter hour and minute.'); return; }
+      body.daysOfWeek = selectedDays;
+      body.hour = hour;
+      body.minute = minute;
+    }
+
+    const res = await fetch('/api/schedules', { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.success) { showToast('Schedule created ✅'); loadSchedules(); }
+    else alert('Error: ' + (data.error || 'Unknown'));
+  }
+
+  async function deleteSchedule(id) {
+    if (!confirm('Delete this schedule?')) return;
+    const res = await fetch(`/schedules/${id}`, { method: 'DELETE', headers: authHeaders() });
+    const data = await res.json();
+    if (data.success) { showToast('Schedule deleted.'); loadSchedules(); }
+    else alert('Error: ' + (data.error || 'Unknown'));
+  }
+
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('createSchedBtn').addEventListener('click', createSchedule);
+  document.getElementById('daysGrid').addEventListener('click', (e) => {
+    const btn = e.target.closest('.day-btn');
+    if (btn) btn.classList.toggle('selected');
+  });
+  document.querySelectorAll('input[name="schedType"]').forEach(radio => {
+    radio.addEventListener('change', toggleType);
+  });
+  document.getElementById('schedulesList').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action="delete"][data-id]');
+    if (btn) deleteSchedule(btn.dataset.id);
+  });
+
+  loadDevices();
+  loadSchedules();
+</script>
+</body>
+</html>

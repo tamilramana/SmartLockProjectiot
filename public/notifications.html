@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartLock — Notifications</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
+    nav {
+      background: #0f3460; color: #fff; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 56px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    nav .brand { font-size: 1.3rem; font-weight: 700; text-decoration: none; color: #fff; }
+    nav .links a { color: #ccd; text-decoration: none; margin-left: 20px; font-size: 0.9rem; }
+    nav .links a:hover, nav .links a.active { color: #fff; }
+    nav .user { font-size: 0.85rem; color: #aac; margin-left: 20px; }
+    nav .logout { background: #e74c3c; border: none; color: #fff; padding: 6px 14px;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-left: 12px; }
+    nav .logout:hover { background: #c0392b; }
+    .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+    h2 { margin-bottom: 20px; color: #0f3460; }
+    .section { background: #fff; border-radius: 12px; padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .action-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end; }
+    .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-primary { background: #0f3460; color: #fff; }
+    .btn-primary:hover { background: #16213e; }
+    .btn-danger { background: #e74c3c; color: #fff; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    th { background: #f8f9fa; color: #555; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
+    .badge-info { background: #e3f2fd; color: #1976d2; }
+    .badge-warning { background: #fff8e1; color: #f57c00; }
+    .badge-critical { background: #fdecea; color: #e74c3c; }
+    .loading { text-align: center; padding: 30px; color: #999; }
+    .empty { text-align: center; padding: 20px; color: #bbb; font-style: italic; }
+    input, select { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.9rem; }
+    input:focus, select:focus { outline: none; border-color: #0f3460; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #323232; color: #fff;
+      padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; z-index: 200; display: none; }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/index.html">🔒 SmartLock</a>
+  <div class="links">
+    <a href="/index.html">Dashboard</a>
+    <a href="/devices.html">Devices</a>
+    <a href="/notifications.html" class="active">Notifications</a>
+    <a href="/logs.html">Logs</a>
+    <a href="/schedules.html">Schedules</a>
+    <a href="/users.html" id="usersLink" style="display:none">Users</a>
+  </div>
+  <div style="display:flex;align-items:center">
+    <span class="user" id="userDisplay"></span>
+    <button class="logout" id="logoutBtn">Logout</button>
+  </div>
+</nav>
+<div class="container">
+  <h2>Notifications</h2>
+  <div class="action-row">
+    <div>
+      <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:4px">New Notification</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="newMsg" placeholder="Message…" style="width:260px" />
+        <select id="newLevel">
+          <option value="info">Info</option>
+          <option value="warning">Warning</option>
+          <option value="critical">Critical</option>
+        </select>
+        <button class="btn btn-primary" id="addNotifBtn">Add</button>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="background:#555;align-self:flex-end" id="refreshBtn">↺ Refresh</button>
+  </div>
+  <div class="section">
+    <div id="notifsList" class="loading">Loading…</div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+  const username = localStorage.getItem('username');
+  if (!token) { window.location.href = '/login.html'; }
+
+  document.getElementById('userDisplay').textContent = username ? `👤 ${username}` : '';
+  if (role === 'admin') document.getElementById('usersLink').style.display = 'inline';
+
+  function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+  function authHeaders() { return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }; }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2500);
+  }
+
+  async function loadNotifications() {
+    document.getElementById('notifsList').innerHTML = '<div class="loading">Loading…</div>';
+    try {
+      const res = await fetch('/notifications', { headers: authHeaders() });
+      if (res.status === 401) { logout(); return; }
+      const notifs = await res.json();
+      if (!notifs.length) {
+        document.getElementById('notifsList').innerHTML = '<div class="empty">No notifications.</div>';
+        return;
+      }
+      let html = '<table><thead><tr><th>Time</th><th>Level</th><th>Message</th><th>Action</th></tr></thead><tbody>';
+      notifs.forEach(n => {
+        const cls = n.level === 'warning' ? 'badge-warning' : n.level === 'critical' ? 'badge-critical' : 'badge-info';
+        html += `<tr>
+          <td>${new Date(n.timestamp).toLocaleString()}</td>
+          <td><span class="badge ${cls}">${escText((n.level||'info').toUpperCase())}</span></td>
+          <td>${escText(n.message)}</td>
+          <td><button class="btn btn-danger btn-sm" data-action="delete" data-id="${escAttr(n.id)}">Delete</button></td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById('notifsList').innerHTML = html;
+    } catch (e) {
+      document.getElementById('notifsList').innerHTML = '<div class="empty">Error loading notifications.</div>';
+    }
+  }
+
+  async function addNotification() {
+    const message = document.getElementById('newMsg').value.trim();
+    const level = document.getElementById('newLevel').value;
+    if (!message) { alert('Please enter a message.'); return; }
+    const res = await fetch('/notifications', {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ message, level })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('newMsg').value = '';
+      showToast('Notification added ✅');
+      loadNotifications();
+    } else {
+      alert('Error: ' + (data.error || 'Unknown'));
+    }
+  }
+
+  async function deleteNotif(id) {
+    const res = await fetch(`/notifications/${id}`, { method: 'DELETE', headers: authHeaders() });
+    const data = await res.json();
+    if (data.success) { showToast('Deleted.'); loadNotifications(); }
+    else alert('Error: ' + (data.error || 'Unknown'));
+  }
+
+  function escText(s) {
+    const div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  function escAttr(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('addNotifBtn').addEventListener('click', addNotification);
+  document.getElementById('refreshBtn').addEventListener('click', loadNotifications);
+
+  document.getElementById('notifsList').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action="delete"][data-id]');
+    if (btn) deleteNotif(btn.dataset.id);
+  });
+
+  loadNotifications();
+</script>
+</body>
+</html>
