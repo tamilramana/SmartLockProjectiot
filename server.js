@@ -255,7 +255,7 @@ function ensureSampleData() {
         deviceId: 'front-door',
         name: 'Front Door Lock',
         location: 'Main Entrance',
-        ip_address: '192.168.1.101',
+        ip_address: '127.0.0.1:8080',
         api_key: crypto.randomBytes(24).toString('hex'),
         status: 'locked',
         owner_id: adminUser.id
@@ -266,7 +266,7 @@ function ensureSampleData() {
         deviceId: 'garage',
         name: 'Garage Door',
         location: 'Garage',
-        ip_address: '192.168.1.102',
+        ip_address: '127.0.0.1:8081',
         api_key: crypto.randomBytes(24).toString('hex'),
         status: 'unlocked',
         owner_id: adminUser.id
@@ -277,7 +277,7 @@ function ensureSampleData() {
         deviceId: 'backyard',
         name: 'Backyard Gate',
         location: 'Backyard',
-        ip_address: '192.168.1.103',
+        ip_address: '127.0.0.1:8082',
         api_key: crypto.randomBytes(24).toString('hex'),
         status: 'offline',
         owner_id: adminUser.id
@@ -351,7 +351,13 @@ function forwardToDevice(deviceId, action) {
       return reject(new Error("Device offline or not found"));
     }
 
-    const ip = device.ip_address;
+    let ip = device.ip_address;
+    let port = 80;
+    if (ip.includes(':')) {
+      const parts = ip.split(':');
+      ip = parts[0];
+      port = parseInt(parts[1], 10);
+    }
     
     // Create a 32-byte key from device API key or master key
     const deviceKey = crypto.createHash('sha256').update(device.api_key || MASTER_KEY.toString()).digest();
@@ -366,11 +372,9 @@ function forwardToDevice(deviceId, action) {
     const encryptedData = encryptPayload(commandPayload, deviceKey);
     const postData = JSON.stringify(encryptedData);
 
-    if (!ip) return reject(new Error("No IP provided"));
-
     const options = {
       hostname: ip,
-      port: 80,
+      port: port,
       path: '/api/command',
       method: "POST",
       timeout: 4000, 
@@ -721,6 +725,43 @@ setInterval(checkSchedules, 60 * 1000);
 // Health Check Endpoint
 app.get("/health", (req, res) => {
   res.json({ status: "ok", uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
+
+// Register endpoint
+app.post("/register", async (req, res) => {
+  const { username, password } = req.body || {};
+  
+  if (!username || !password) {
+    return res.status(400).json({ error: "Username and password are required" });
+  }
+
+  // Prevent simple brute force spam on registering
+  // In a real app we'd have a specific rate limiter for this
+
+  const data = loadData();
+  const existingUser = data.users.find(u => u.username === username);
+  
+  if (existingUser) {
+    return res.status(409).json({ error: "Username already exists" });
+  }
+
+  data.users.push({
+    id: uuidv4(),
+    username: username,
+    password_hash: bcrypt.hashSync(password, 10),
+    role: 'user', // Default registered users have 'user' role
+    mfa_enabled: false,
+    mfa_secret: null,
+    mfa_secret_pending: null,
+    backup_codes: [],
+    trusted_devices: [],
+    created_at: new Date().toISOString()
+  });
+
+  saveData(data);
+  logger.info(`New user registered: ${username}`);
+
+  res.json({ success: true, message: "Registration successful" });
 });
 
 // login

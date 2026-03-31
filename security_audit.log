@@ -47,3 +47,30 @@
 {"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-31 08:16:09"}
 {"level":"info","message":"Device authenticated and online: front-door","timestamp":"2026-03-31 08:16:09"}
 {"level":"info","message":"Device status update: front-door - locked","timestamp":"2026-03-31 08:16:09"}
+{"level":"info","message":"Device authenticated and online: front-door","timestamp":"2026-03-31 08:29:20"}
+{"attempt":1,"level":"warn","max":5,"message":"Failed login attempt: user","timestamp":"2026-03-31 08:33:35"}
+{"level":"warn","message":"Login failed: invalid password for user 'user' from ::1","timestamp":"2026-03-31 08:33:35"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-31 08:33:42"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-31T03:03:42.942Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-31 08:33:42.942"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-31 08:33:42"}
+{"level":"info","message":"Device authenticated and online: front-door","timestamp":"2026-03-31 08:34:21"}
+{"level":"error","message":"Device Lock Error: Request timed out","timestamp":"2026-03-31 08:34:35"}
+{"level":"error","message":"Device Unlock Error: Request timed out","timestamp":"2026-03-31 08:35:00"}
+{"level":"info","message":"Device authenticated and online: front-door","timestamp":"2026-03-31 08:51:49"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-31 08:52:04"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-31T03:22:04.624Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-31 08:52:04.624"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-31 08:52:04"}
+{"level":"error","message":"Device Lock Error: Request timed out","timestamp":"2026-03-31 08:52:18"}
+{"level":"info","message":"Device status update: front-door - locked","timestamp":"2026-03-31 08:52:19"}
+{"level":"error","message":"Device Lock Error: Request timed out","timestamp":"2026-03-31 08:52:42"}
+{"level":"info","message":"Device status update: front-door - locked","timestamp":"2026-03-31 08:52:49"}
+{"level":"warn","message":"Login: MFA required but not provided for admin","timestamp":"2026-03-31 09:06:23"}
+{"level":"warn","message":"Login: MFA required but not provided for admin","timestamp":"2026-03-31 09:06:29"}
+{"level":"info","message":"Login: MFA verified for admin","timestamp":"2026-03-31 09:06:36"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-31T03:36:36.764Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":true}","timestamp":"2026-03-31 09:06:36.764"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-31 09:06:36"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-31 09:06:36"}
+{"level":"info","message":"New user registered: srirevanth","timestamp":"2026-03-31 09:09:27"}
+{"level":"info","message":"Successful login: srirevanth","timestamp":"2026-03-31 09:09:33"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-31T03:39:33.644Z\",\"username\":\"srirevanth\",\"userId\":\"8fc3f9db-4bcf-4298-846a-60543f6f0a63\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-31 09:09:33.644"}
+{"level":"info","message":"Successful login: srirevanth from ::1","timestamp":"2026-03-31 09:09:33"}

@@ -6,7 +6,7 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link rel="preconnect" href="https://use.fontawesome.com">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-  <title>SmartLock — Login</title>
+  <title>SmartLock — Register</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
   <style>
     * {
@@ -346,10 +346,10 @@
     </div>
 
     <div class="card">
-      <h2>Welcome Back</h2>
-      <p class="card-subtitle">Sign in to your admin dashboard</p>
+      <h2>Create an Account</h2>
+      <p class="card-subtitle">Sign up to control your devices</p>
       
-      <form onsubmit="handleLogin(event)">
+      <form onsubmit="handleRegister(event)">
         <div class="form-group">
           <label for="username">Username</label>
           <input id="username" type="text" placeholder="Enter your username" required />
@@ -360,29 +360,11 @@
           <input id="password" type="password" placeholder="Enter your password" required />
         </div>
         
-        <div class="form-group mfa-group" id="backupGroup" style="display:none">
-          <label for="backupCode">Backup Code</label>
-          <input id="backupCode" type="text" placeholder="Enter backup code" maxlength="32" />
-        </div>
-        <div class="form-group mfa-group" id="rememberGroup" style="display:none">
-          <label><input id="rememberDevice" type="checkbox" style="margin-right:8px;" /> Remember this device for 30 days</label>
-        </div>
-        <div class="form-group" id="mfaGroup" style="display:none">
-          <label for="mfaToken">MFA Verification Code</label>
-          <input id="mfaToken" type="text" placeholder="6-digit code" maxlength="6" />
-        </div>
-
-        <button type="submit" id="loginBtn">Sign in</button>
+        <button type="submit" id="loginBtn">Register</button>
       </form>
 
-      <div class="info-box">
-        <strong>Demo Credentials:</strong> <br>
-        Username: <strong>admin</strong> <br>
-        Password: <strong>admin</strong>
-      </div>
-
       <div style="margin-top:20px; text-align:center; font-size:14px;">
-        <p style="color:#000;">Don't have an account? <a href="/register.html" style="color:#667eea; text-decoration:none; font-weight:700;">Sign up</a></p>
+        <p style="color:#000;">Already have an account? <a href="/login.html" style="color:#667eea; text-decoration:none; font-weight:700;">Sign in</a></p>
       </div>
 
       <p id="msg"></p>
@@ -399,15 +381,11 @@ function authHeaders() {
   return h;
 }
 
-async function handleLogin(event) {
+async function handleRegister(event) {
   event.preventDefault();
   
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
-  const mfaToken = document.getElementById('mfaToken').value.trim();
-  const backupCode = document.getElementById('backupCode').value.trim();
-  const rememberDevice = document.getElementById('rememberDevice').checked;
-  const trustedDeviceToken = localStorage.getItem('sl_trusted_device');
   const loginBtn = document.getElementById('loginBtn');
   
   if (!username || !password) {
@@ -417,54 +395,31 @@ async function handleLogin(event) {
   
   try {
     loginBtn.disabled = true;
-    loginBtn.innerText = 'Signing in...';
+    loginBtn.innerText = 'Registering...';
     
-    const res = await fetch(api + '/login', {
+    const res = await fetch(api + '/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username,
-        password,
-        mfaToken: mfaToken || undefined,
-        backupCode: backupCode || undefined,
-        rememberDevice,
-        trustedDeviceToken: trustedDeviceToken || undefined
-      })
+      body: JSON.stringify({ username, password })
     });
     
     const data = await res.json();
     
-    if (data.success && data.token) {
-      localStorage.setItem('sl_token', data.token);
-      localStorage.setItem('sl_user', data.username || username);
-      if (data.role) localStorage.setItem('sl_role', data.role);
-      if (data.trustedDeviceToken) {
-        localStorage.setItem('sl_trusted_device', data.trustedDeviceToken);
-      }
-      showMessage('Login successful! Redirecting...', 'success');
+    if (res.ok && data.success) {
+      showMessage('Registration successful! Redirecting to login...', 'success');
       setTimeout(() => {
-        window.location.href = '/index.html';
-      }, 800);
+        window.location.href = '/login.html';
+      }, 1500);
       return;
     }
 
-    if (data.mfaRequired) {
-      document.getElementById('mfaGroup').style.display = 'block';
-      document.getElementById('backupGroup').style.display = 'block';
-      document.getElementById('rememberGroup').style.display = 'block';
-      showMessage('Enter your 6-digit MFA code or backup code to continue', 'error');
-      loginBtn.disabled = false;
-      loginBtn.innerText = 'Sign in';
-      return;
-    }
-
-    showMessage('Invalid username or password', 'error');
+    showMessage(data.error || 'Registration failed', 'error');
     loginBtn.disabled = false;
-    loginBtn.innerText = 'Sign in';
+    loginBtn.innerText = 'Register';
   } catch (e) {
     showMessage('Connection error. Please try again', 'error');
     loginBtn.disabled = false;
-    loginBtn.innerText = 'Sign in';
+    loginBtn.innerText = 'Register';
   }
 }
 
@@ -474,12 +429,9 @@ function showMessage(text, type) {
   msgEl.className = type;
 }
 
-// Allow enter key to submit
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('password').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      handleLogin(e);
-    }
+    if (e.key === 'Enter') handleRegister(e);
   });
 });
 </script>
