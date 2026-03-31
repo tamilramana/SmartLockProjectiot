@@ -36,9 +36,9 @@
       "api_key": "sample-api-key-1",
       "status": "locked",
       "owner_id": "admin-1",
-      "last_heartbeat": "2026-03-30T16:17:32.800Z",
-      "battery": 88,
-      "signal_strength": -62,
+      "last_heartbeat": "2026-03-31T02:46:09.527Z",
+      "battery": 95,
+      "signal_strength": -60,
       "pending_commands": []
     },
     {
@@ -76,6 +76,17 @@
     }
   ],
   "logs": [
+    {
+      "id": "bdd8114a-d159-427e-822f-533459994f6e",
+      "timestamp": "2026-03-30T16:29:29.380Z",
+      "userId": null,
+      "user": null,
+      "action": "schedule:lock",
+      "deviceId": "device-1",
+      "details": "Auto lock via schedule",
+      "severity": "info",
+      "log_hmac": "aed05253996f906c290eb078cea16ccfee270a107953c28735e9c085087b4575"
+    },
     {
       "id": "70be91b9-907f-485b-bb7d-27808d8abde6",
       "timestamp": "2026-03-30T15:31:53.299Z",
@@ -250,12 +261,12 @@
   ],
   "schedules": [
     {
-      "id": "51c9a361-10fa-463c-b728-ec6e9284dbb1",
+      "id": "654fd74e-9b14-4eda-97a0-89be46782b75",
       "deviceId": "device-1",
       "action": "lock",
-      "time": "2026-03-30T16:29:29.346Z",
+      "time": "2026-03-31T03:45:56.647Z",
       "created_by": "admin-1",
-      "created_at": "2026-03-30T15:29:29.346Z"
+      "created_at": "2026-03-31T02:45:56.647Z"
     }
   ]
 }

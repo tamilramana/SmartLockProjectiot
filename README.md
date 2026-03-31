@@ -46,10 +46,14 @@ npm install
 
 # 3. Start the server
 npm start
+
+# 4. Optional: run API/module smoke checks (in another terminal)
+npm run smoke
 ```
 
 The server starts on **http://localhost:3000** by default.  
 Open that URL in your browser — you will be redirected to the login page automatically.
+The smoke check should print `All smoke checks passed` when the API and module routes are healthy.
 
 ---
 

@@ -456,6 +456,11 @@ function findDeviceById(deviceId) {
   return data.devices.find(d => d.id === deviceId || d.deviceId === deviceId);
 }
 
+function findDeviceIndexByAnyId(devices, deviceRef) {
+  if (!Array.isArray(devices)) return -1;
+  return devices.findIndex((d) => d.id === deviceRef || d.deviceId === deviceRef || d.device_id === deviceRef);
+}
+
 function createDeviceAudit({ userId, action, device, status, details }) {
   if (!device) return;
   pushLog({
@@ -589,7 +594,7 @@ function scheduleJob(sch) {
       const newStatus = sch.action === 'lock' ? 'locked' : 'unlocked';
 
       if (sch.deviceId) {
-        const devIdx = data.devices.findIndex(d => d.id === sch.deviceId);
+        const devIdx = findDeviceIndexByAnyId(data.devices, sch.deviceId);
         if (devIdx !== -1) {
           data.devices[devIdx].status = newStatus;
           saveData(data);
@@ -1239,7 +1244,7 @@ app.post("/devices", requireAuth, (req, res) => {
 app.delete("/devices/:id", requireAuth, (req, res) => {
   const data = loadData();
   const id = req.params.id;
-  data.devices = data.devices.filter(d => d.id !== id);
+  data.devices = data.devices.filter(d => d.id !== id && d.deviceId !== id && d.device_id !== id);
   saveData(data);
 
   pushLog({ userId: req.user.id, action: 'device:delete', deviceId: id });
@@ -1249,7 +1254,8 @@ app.delete("/devices/:id", requireAuth, (req, res) => {
 
 app.get('/devices/:id', requireAuth, (req, res) => {
   const data = loadData();
-  const device = data.devices.find(d => d.id === req.params.id);
+  const ref = req.params.id;
+  const device = data.devices.find(d => d.id === ref || d.deviceId === ref || d.device_id === ref);
   if (!device) return res.status(404).json({ error: 'Device not found' });
   res.json(normalizeDevice(device));
 });
@@ -1257,7 +1263,8 @@ app.get('/devices/:id', requireAuth, (req, res) => {
 app.put('/devices/:id', requireAuth, (req, res) => {
   const body = req.body || {};
   const data = loadData();
-  const device = data.devices.find(d => d.id === req.params.id);
+  const ref = req.params.id;
+  const device = data.devices.find(d => d.id === ref || d.deviceId === ref || d.device_id === ref);
   if (!device) return res.status(404).json({ error: 'Device not found' });
 
   if (body.deviceId) {
@@ -1285,7 +1292,8 @@ app.post('/devices/:id/wifi/connect', requireAuth, (req, res) => {
   }
 
   const data = loadData();
-  const device = data.devices.find(d => d.id === req.params.id);
+  const ref = req.params.id;
+  const device = data.devices.find(d => d.id === ref || d.deviceId === ref || d.device_id === ref);
   if (!device) return res.status(404).json({ error: 'Device not found' });
 
   device.wifi_ssid = wifiSSID;
@@ -1539,7 +1547,7 @@ app.delete('/schedules/:id', requireAuth, (req, res) => {
 app.post("/devices/:id/lock", requireAuth, (req, res) => {
   const id = req.params.id;
   const data = loadData();
-  const device = data.devices.find(d => d.id === id);
+  const device = data.devices.find(d => d.id === id || d.deviceId === id || d.device_id === id);
   if (!device) return res.status(404).json({ error: "Not found" });
 
   device.status = 'locked';
@@ -1566,7 +1574,7 @@ app.post("/devices/:id/lock", requireAuth, (req, res) => {
 app.post("/devices/:id/unlock", requireAuth, (req, res) => {
   const id = req.params.id;
   const data = loadData();
-  const device = data.devices.find(d => d.id === id);
+  const device = data.devices.find(d => d.id === id || d.deviceId === id || d.device_id === id);
   if (!device) return res.status(404).json({ error: "Not found" });
 
   device.status = 'unlocked';
