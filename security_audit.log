@@ -42,3 +42,8 @@
 {"level":"info","message":"Device status update: front-door - locked","timestamp":"2026-03-30 21:57:14"}
 {"level":"error","message":"Schedule lock error for device-1: Request timed out","timestamp":"2026-03-30 21:59:33"}
 {"level":"error","message":"Scheduled lock error for device-1: Request timed out","timestamp":"2026-03-30 21:59:34"}
+{"level":"info","message":"Successful login: admin","timestamp":"2026-03-31 08:16:09"}
+{"level":"info","message":"{\"eventType\":\"LOGIN_SUCCESS\",\"timestamp\":\"2026-03-31T02:46:09.465Z\",\"username\":\"admin\",\"userId\":\"admin-1\",\"ip\":\"::1\",\"mfaEnabled\":false}","timestamp":"2026-03-31 08:16:09.465"}
+{"level":"info","message":"Successful login: admin from ::1","timestamp":"2026-03-31 08:16:09"}
+{"level":"info","message":"Device authenticated and online: front-door","timestamp":"2026-03-31 08:16:09"}
+{"level":"info","message":"Device status update: front-door - locked","timestamp":"2026-03-31 08:16:09"}
